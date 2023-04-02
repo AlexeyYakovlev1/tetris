@@ -1,0 +1,50 @@
+@import "./_global.css";
+
+.field {
+	height: 800px;
+	width: 100%;
+	background-color: #BECFEA;
+}
+
+.field__list {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.field__square {
+	background-color: #111013;
+	border: 1px solid #7A88A5;
+	width: 40px;
+	height: 40px;
+	color: #fff;
+	font-size: 13px;
+}
+
+.figure__O {
+	background-color: #FAFF00;
+}
+
+.figure__I {
+	background-color: #00E4FF;
+}
+
+.figure__S {
+	background-color: #F60000;
+}
+
+.figure__Z {
+	background-color: #69B625;
+}
+
+.figure__L {
+	background-color: #FF8D00;
+}
+
+.figure__J {
+	background-color: #FF51BC;
+}
+
+.figure__T {
+	background-color: #9F0096;
+}
