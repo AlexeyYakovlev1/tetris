@@ -1,9 +1,13 @@
-class Field {
+import Figures from "./Figures.js";
+
+class Field extends Figures {
 	constructor($field) {
+		super();
 		this.$field = $field;
 		this.squares = [];
 	}
 
+	// Заполнить и нарисовать квадраты
 	fillAndDrawSquares() {
 		// заполняем
 		for (let i = 20; i >= 1; i--) {
@@ -35,15 +39,11 @@ class Field {
 		});
 	}
 
-	// получение квадратов из html по координатам
-	getHTMLSquaresByCoords(coords) {
-		const { x, y } = coords;
-		const $fieldSquares = document.querySelectorAll(`.field__square[data-x="${x}"][data-y="${y}"]`);
-
-		return $fieldSquares;
-	}
-
+	// Запуск 
 	start() {
 		this.fillAndDrawSquares();
+		this.renderRandomFigure();
 	}
 }
+
+export default Field;

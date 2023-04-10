@@ -1,4 +1,4 @@
-class Figures extends Field {
+class Figures {
 	list = [
 		{
 			color: "#FAFF00",
@@ -160,13 +160,21 @@ class Figures extends Field {
 	];
 
 	// Рисование фигуры
-	draw(figure = this.list[6]) {
+	draw(figure) {
 		// Проверка типа фигуры
 		if (!Object.keys(figure).includes("sides")) {
 			this.drawTypeI(figure);
 		} else if (figure.sides.length >= 2) {
 			this.drawOtherFigures(figure);
 		}
+	}
+
+	// Рисует рандомную фигуру
+	renderRandomFigure(n = this.list.length) {
+		const figureIdx = Math.floor(Math.random() * n);
+		const currentFigure = this.list[figureIdx];
+
+		this.draw(currentFigure);
 	}
 
 	// Рисование фигур типа I
@@ -181,6 +189,14 @@ class Figures extends Field {
 			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
 			$square.classList.add(cssClass);
 		}
+	}
+
+	// Получение квадратов из html по координатам
+	getHTMLSquaresByCoords(coords) {
+		const { x, y } = coords;
+		const $fieldSquares = document.querySelectorAll(`.field__square[data-x="${x}"][data-y="${y}"]`);
+
+		return $fieldSquares;
 	}
 
 	// Метод рисования других фигур
@@ -227,7 +243,7 @@ class Figures extends Field {
 		}
 	}
 
-	// Метод растягивания фигур в опредленную сторону (RIGHT, LEFT)
+	// Растягивание фигур в опредленную сторону (RIGHT, LEFT)
 	drawStretchingInTwoDirections(where, value, side, cssClass) {
 		const whereArray = where.split(";");
 		const { xSquare, yList } = side;
@@ -253,4 +269,13 @@ class Figures extends Field {
 			}
 		}
 	}
+
+	// Каждую секунду опускаем рандомную фигуру
+	dropFigureAfterSeconds(sec = 1) {
+		setInterval(() => {
+
+		}, sec * 1000);
+	}
 }
+
+export default Figures;
