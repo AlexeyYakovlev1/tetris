@@ -159,84 +159,98 @@ class Figures extends Field {
 		},
 	];
 
-	// отрисовка фигуры
+	// Рисование фигуры
 	draw(figure = this.list[6]) {
-		const figureHaveSides = Object.keys(figure).includes("sides");
-		const { name } = figure;
-		const cssClass = `figure__${name}`;
+		// Проверка типа фигуры
+		if (!Object.keys(figure).includes("sides")) {
+			this.drawTypeI(figure);
+		} else if (figure.sides.length >= 2) {
+			this.drawOtherFigures(figure);
+		}
+	}
 
-		// для фигуры I
-		if (!figureHaveSides) {
-			const { yList, xSquare, fillUpTo: { y: fillUpToY } } = figure;
-			const $startSquare = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
+	// Рисование фигур типа I
+	drawTypeI(figure) {
+		const { yList, xSquare, fillUpTo: { y: fillUpToY } } = figure;
+		const $startSquare = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
+		const cssClass = `figure__${figure.name}`;
 
-			$startSquare.classList.add(cssClass);
+		$startSquare.classList.add(cssClass);
 
-			for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-				const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
+		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
+			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
+			$square.classList.add(cssClass);
+		}
+	}
+
+	// Метод рисования других фигур
+	drawOtherFigures(figure) {
+		const cssClass = `figure__${figure.name}`;
+
+		figure.sides.forEach((side) => {
+			const { yList, xSquare, fillUpTo: { x: fillUpToX, y: fillUpToY } } = side;
+			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
+
+			$square.classList.add(cssClass);
+
+			if (fillUpToX !== 0) {
+				this.drawStretchingX(side, fillUpToX, cssClass);
+			}
+
+			if (fillUpToY !== 0) {
+				this.drawStretchingY(xSquare, yList, fillUpToY, cssClass);
+			}
+		});
+	}
+
+	// Растягивание фигур по вертикали Y
+	drawStretchingY(xSquare, yList, fillUpToY, cssClass) {
+		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
+			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
+			$square.classList.add(cssClass);
+		}
+	}
+
+	// Растягивание фигур по горизонтали X
+	drawStretchingX(side, fillUpToX, cssClass) {
+		const fillUpToXHaveWhere = Object.keys(fillUpToX).includes("where");
+		const { xSquare, yList } = side;
+
+		if (fillUpToXHaveWhere) {
+			const { where, value } = fillUpToX;
+			this.drawStretchingInTwoDirections(where, value, side, cssClass);
+		} else {
+			for (let i = xSquare; i <= xSquare + fillUpToX; i++) {
+				const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
 				$square.classList.add(cssClass);
 			}
-		} else if (figureHaveSides && figure.sides.length >= 2) { // для других фигур
-			// фигуры состоят из нескольких сторон
-			const { sides } = figure;
+		}
+	}
 
-			sides.forEach((side) => {
-				const { yList, xSquare, fillUpTo: { x: fillUpToX, y: fillUpToY } } = side;
-				const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
-				const fillUpToXHaveWhere = Object.keys(fillUpToX).includes("where");
+	// Метод растягивания фигур в опредленную сторону (RIGHT, LEFT)
+	drawStretchingInTwoDirections(where, value, side, cssClass) {
+		const whereArray = where.split(";");
+		const { xSquare, yList } = side;
 
+		if (whereArray.includes("RIGHT") && whereArray.includes("LEFT")) {
+			for (let i = xSquare; i <= xSquare + value; i++) {
+				const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
 				$square.classList.add(cssClass);
-
-				// каждая сторона может растягиваться в определенную сторону (LEFT, RIGHT)
-				if (fillUpToX !== 0) {
-					// если нужно растянуть в определенную сторону по x
-					if (fillUpToXHaveWhere) {
-						const where = fillUpToX.where.split(";");
-						const value = fillUpToX.value;
-
-						if (where.length === 1) {
-							switch (where[0]) {
-								case "RIGHT":
-									for (let i = xSquare; i <= xSquare + value; i++) {
-										const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
-										$square.classList.add(cssClass);
-									}
-									break;
-								case "LEFT":
-									for (let i = xSquare - 1; i >= xSquare - value; i--) {
-										const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
-										$square.classList.add(cssClass);
-									}
-									break;
-							}
-						} else if (where.includes("RIGHT") && where.includes("LEFT")) { // если нужно растянуть сразу в две стороны с одинаковым значением
-							// RIGHT
-							for (let i = xSquare; i <= xSquare + value; i++) {
-								const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
-								$square.classList.add(cssClass);
-							}
-
-							// LEFT
-							for (let i = xSquare - 1; i >= xSquare - value; i--) {
-								const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
-								$square.classList.add(cssClass);
-							}
-						}
-					} else {
-						for (let i = xSquare; i <= xSquare + fillUpToX; i++) {
-							const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
-							$square.classList.add(cssClass);
-						}
-					}
-				}
-
-				if (fillUpToY !== 0) {
-					for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-						const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
-						$square.classList.add(cssClass);
-					}
-				}
-			});
+			}
+			for (let i = xSquare - 1; i >= xSquare - value; i--) {
+				const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
+				$square.classList.add(cssClass);
+			}
+		} else if (whereArray[0] === "RIGHT") {
+			for (let i = xSquare; i <= xSquare + value; i++) {
+				const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
+				$square.classList.add(cssClass);
+			}
+		} else if (whereArray[0] === "LEFT") {
+			for (let i = xSquare - 1; i >= xSquare - value; i--) {
+				const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
+				$square.classList.add(cssClass);
+			}
 		}
 	}
 }
