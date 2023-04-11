@@ -158,6 +158,8 @@ class Figures {
 			]
 		},
 	];
+	activeFigure = {};
+	activeFigureHaveSides = Object.keys(this.activeFigure).includes("sides");
 
 	// Рисование фигуры
 	draw(figure) {
@@ -174,7 +176,12 @@ class Figures {
 		const figureIdx = Math.floor(Math.random() * n);
 		const currentFigure = this.list[figureIdx];
 
-		this.draw(currentFigure);
+		/** DEBUG  */
+		// this.activeFigure = currentFigure;
+		// this.draw(currentFigure);
+
+		this.activeFigure = this.list[1];
+		this.draw(this.list[1]);
 	}
 
 	// Рисование фигур типа I
@@ -183,11 +190,11 @@ class Figures {
 		const $startSquare = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
 		const cssClass = `figure__${figure.name}`;
 
-		$startSquare.classList.add(cssClass);
+		$startSquare.classList.add(cssClass, "figure");
 
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
 			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
-			$square.classList.add(cssClass);
+			$square.classList.add(cssClass, "figure");
 		}
 	}
 
@@ -270,10 +277,37 @@ class Figures {
 		}
 	}
 
+	// Удаление/Добавление css класса квадрату
+	setSquareClass(coords, figureName) {
+		const $square = this.getHTMLSquaresByCoords(coords)[0];
+		const cssClass = `figure__${figureName}`;
+
+		$square.classList.remove(cssClass, "figure")
+
+		// Для фигуры типа I
+		if (this.activeFigureHaveSides === false) {
+			const { yList, xSquare, fillUpTo: { y: fillUpToY } } = this.activeFigure;
+
+			this.activeFigure.yList -= 1;
+
+			const coords = { y: yList - fillUpToY - 1, x: xSquare };
+			const $square = this.getHTMLSquaresByCoords(coords)[0];
+
+			$square.classList.add(cssClass, "figure");
+		} else {
+			// логика для других фигур
+		}
+	}
+
 	// Каждую секунду опускаем рандомную фигуру
 	dropFigureAfterSeconds(sec = 1) {
 		setInterval(() => {
+			if (this.activeFigureHaveSides === false) {
+				const { yList, xSquare, name } = this.activeFigure;
+				const coords = { x: xSquare, y: yList };
 
+				this.setSquareClass(coords, name);
+			}
 		}, sec * 1000);
 	}
 }

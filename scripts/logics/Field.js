@@ -43,6 +43,7 @@ class Field extends Figures {
 	start() {
 		this.fillAndDrawSquares();
 		this.renderRandomFigure();
+		this.dropFigureAfterSeconds();
 	}
 }
 
