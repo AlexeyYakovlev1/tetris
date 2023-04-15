@@ -3,6 +3,7 @@ import Figures from "./Figures.js";
 class Field extends Figures {
 	constructor($field) {
 		super();
+
 		this.$field = $field;
 		this.squares = [];
 	}
@@ -39,11 +40,33 @@ class Field extends Figures {
 		});
 	}
 
-	// Запуск 
-	start() {
+	// Предварительный рендер поля
+	render() {
 		this.fillAndDrawSquares();
+	}
+
+	// Запуск 
+	startPlay() {
+		this.setStopDropFigure = false;
+
 		this.renderRandomFigure();
 		this.dropFigureAfterSeconds();
+
+		/** 
+		 * TODO
+		 * добавить метод для очистки поля от фигур
+		 * */
+	}
+
+	// Продолжить играть после паузы
+	continuePlay() {
+		this.setStopDropFigure = false;
+		this.dropFigureAfterSeconds();
+	}
+
+	// Пауза
+	pause() {
+		this.setStopDropFigure = true;
 	}
 }
 

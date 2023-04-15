@@ -8,16 +8,16 @@ class Figures {
 					yList: 20,
 					xSquare: 5,
 					fillUpTo: {
-						y: 0,
-						x: 1
+						y: 1,
+						x: 0
 					}
 				},
 				{
-					yList: 19,
-					xSquare: 5,
+					yList: 20,
+					xSquare: 6,
 					fillUpTo: {
-						y: 0,
-						x: 1
+						y: 1,
+						x: 0
 					}
 				}
 			]
@@ -40,22 +40,24 @@ class Figures {
 					yList: 20,
 					xSquare: 6,
 					fillUpTo: {
+						y: 1,
+						x: 0
+					}
+				},
+				{
+					yList: 20,
+					xSquare: 7,
+					fillUpTo: {
 						y: 0,
-						x: {
-							where: "RIGHT",
-							value: 1
-						}
+						x: 0
 					}
 				},
 				{
 					yList: 19,
-					xSquare: 6,
+					xSquare: 5,
 					fillUpTo: {
 						y: 0,
-						x: {
-							where: "LEFT",
-							value: 1
-						}
+						x: 0
 					}
 				}
 			]
@@ -68,22 +70,24 @@ class Figures {
 					yList: 20,
 					xSquare: 6,
 					fillUpTo: {
+						y: 1,
+						x: 0
+					}
+				},
+				{
+					yList: 20,
+					xSquare: 5,
+					fillUpTo: {
 						y: 0,
-						x: {
-							where: "LEFT",
-							value: 1
-						}
+						x: 0
 					}
 				},
 				{
 					yList: 19,
-					xSquare: 6,
+					xSquare: 7,
 					fillUpTo: {
 						y: 0,
-						x: {
-							where: "RIGHT",
-							value: 1
-						}
+						x: 0
 					}
 				}
 			]
@@ -140,16 +144,21 @@ class Figures {
 					yList: 20,
 					xSquare: 5,
 					fillUpTo: {
-						y: 0,
-						x: {
-							where: "RIGHT;LEFT",
-							value: 1
-						}
+						y: 1,
+						x: 0
 					}
 				},
 				{
-					yList: 19,
-					xSquare: 5,
+					yList: 20,
+					xSquare: 6,
+					fillUpTo: {
+						y: 0,
+						x: 0
+					}
+				},
+				{
+					yList: 20,
+					xSquare: 4,
 					fillUpTo: {
 						y: 0,
 						x: 0
@@ -159,7 +168,9 @@ class Figures {
 		},
 	];
 	activeFigure = {};
-	activeFigureHaveSides = Object.keys(this.activeFigure).includes("sides");
+	activeFigureHaveSides = false;
+	refreshPosition = null;
+	stopDropFigure = false;
 
 	// Рисование фигуры
 	draw(figure) {
@@ -173,15 +184,16 @@ class Figures {
 
 	// Рисует рандомную фигуру
 	renderRandomFigure(n = this.list.length) {
+		// Ищем рандомную фигуру
 		const figureIdx = Math.floor(Math.random() * n);
 		const currentFigure = this.list[figureIdx];
 
-		/** DEBUG  */
-		// this.activeFigure = currentFigure;
-		// this.draw(currentFigure);
+		// Назначаем
+		this.activeFigure = currentFigure;
+		this.activeFigureHaveSides = Object.keys(currentFigure).includes("sides");
 
-		this.activeFigure = this.list[1];
-		this.draw(this.list[1]);
+		// Рисуем
+		this.draw(currentFigure);
 	}
 
 	// Рисование фигур типа I
@@ -279,34 +291,67 @@ class Figures {
 
 	// Удаление/Добавление css класса квадрату
 	setSquareClass(coords, figureName) {
-		const $square = this.getHTMLSquaresByCoords(coords)[0];
 		const cssClass = `figure__${figureName}`;
+		const { y: yList, x: xSquare } = coords;
+		const coordsForFindSquares = { x: xSquare, y: yList };
+		const $square = this.getHTMLSquaresByCoords(coordsForFindSquares)[0];
 
-		$square.classList.remove(cssClass, "figure")
+		$square.classList.remove(cssClass, "figure");
 
-		// Для фигуры типа I
+		// Если у активной фигуры нет сторон
 		if (this.activeFigureHaveSides === false) {
-			const { yList, xSquare, fillUpTo: { y: fillUpToY } } = this.activeFigure;
+			const { fillUpTo: { y: fillUpToY } } = coords;
 
 			this.activeFigure.yList -= 1;
 
-			const coords = { y: yList - fillUpToY - 1, x: xSquare };
-			const $square = this.getHTMLSquaresByCoords(coords)[0];
+			const coordsForNextSquare = { y: yList - fillUpToY - 1, x: xSquare };
+			const $newSquare = this.getHTMLSquaresByCoords(coordsForNextSquare)[0];
 
-			$square.classList.add(cssClass, "figure");
+			$newSquare.classList.add(cssClass, "figure");
 		} else {
-			// логика для других фигур
+			const { x, y, fillUpTo: { y: fillUpToY }, idxCurrentSide } = coords;
+			const $removedSquare = this.getHTMLSquaresByCoords({ x, y })[0];
+
+			$removedSquare.classList.remove(cssClass, "figure");
+
+			// Опускаем текущую сторону
+			this.activeFigure.sides[idxCurrentSide].yList -= 1;
+
+			const $newSquare = this.getHTMLSquaresByCoords({ y: y - fillUpToY - 1, x })[0];
+
+			$newSquare.classList.add(cssClass, "figure");
 		}
+	}
+
+	get getStopDropFigure() {
+		return this.stopDropFigure;
+	}
+
+	set setStopDropFigure(value) {
+		this.stopDropFigure = value;
 	}
 
 	// Каждую секунду опускаем рандомную фигуру
 	dropFigureAfterSeconds(sec = 1) {
-		setInterval(() => {
+		const refreshPosition = setInterval(() => {
+			if (this.getStopDropFigure === true) clearInterval(refreshPosition);
+
+			const { name } = this.activeFigure;
+
 			if (this.activeFigureHaveSides === false) {
-				const { yList, xSquare, name } = this.activeFigure;
-				const coords = { x: xSquare, y: yList };
+				const { yList, xSquare, fillUpTo } = this.activeFigure;
+				const coords = { x: xSquare, y: yList, fillUpTo };
 
 				this.setSquareClass(coords, name);
+			} else {
+				this.activeFigure.sides.forEach((side, idx) => {
+					const { yList, xSquare, fillUpTo } = side;
+					const coords = { x: xSquare, y: yList, fillUpTo, idxCurrentSide: idx };
+
+					console.log("Side coords: ", coords);
+
+					this.setSquareClass(coords, name);
+				});
 			}
 		}, sec * 1000);
 	}

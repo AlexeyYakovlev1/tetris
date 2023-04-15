@@ -21,6 +21,13 @@
 	font-size: 13px;
 }
 
+.btn__field {
+	cursor: pointer;
+	border: none;
+	margin-top: 20px;
+	padding: 10px 15px;
+}
+
 .figure__O {
 	background-color: #FAFF00;
 }
