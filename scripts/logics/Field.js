@@ -6,6 +6,16 @@ class Field extends Figures {
 
 		this.$field = $field;
 		this.squares = [];
+		this.gameStarted = false;
+		this.gamePaused = false;
+	}
+
+	get getGameStarted() {
+		return this.gameStarted;
+	}
+
+	get getGamePaused() {
+		return this.getGamePaused;
 	}
 
 	// Заполнить и нарисовать квадраты
@@ -20,7 +30,7 @@ class Field extends Figures {
 		// рисуем
 		for (let i = this.squares.length; i > 0; i--) {
 			this.$field.innerHTML += `
-				<ul class="field__list" data-list data-y="${i}"></ul>
+				<ul class="field__list" data-y="${i}"></ul>
 			`;
 		}
 
@@ -31,7 +41,6 @@ class Field extends Figures {
 				$list.innerHTML += `
 					<li
 						class="field__square"
-						data-square
 						data-x="${x}"
 						data-y="${y}"
 					></li>
@@ -40,32 +49,44 @@ class Field extends Figures {
 		});
 	}
 
-	// Предварительный рендер поля
+	// Очищение поля
+	clear() {
+		document.querySelectorAll(".figure").forEach(($figureSquare) => {
+			$figureSquare.className = "field__square";
+		});
+	}
+
+	// Рендер поля
 	render() {
 		this.fillAndDrawSquares();
 	}
 
 	// Запуск 
 	startPlay() {
+		this.gamePaused = false;
+		this.gameStarted = true;
+
+		this.clear();
+		this.resetToDefaultValue();
+		this.renderRandomFigure();
+
 		this.setStopDropFigure = false;
 
-		this.renderRandomFigure();
 		this.dropFigureAfterSeconds();
-
-		/** 
-		 * TODO
-		 * добавить метод для очистки поля от фигур
-		 * */
 	}
 
 	// Продолжить играть после паузы
 	continuePlay() {
+		this.gamePaused = false;
+		this.gameStarted = true;
 		this.setStopDropFigure = false;
+
 		this.dropFigureAfterSeconds();
 	}
 
 	// Пауза
 	pause() {
+		this.gamePaused = true;
 		this.setStopDropFigure = true;
 	}
 }
