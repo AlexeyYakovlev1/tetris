@@ -1,6 +1,4 @@
-import Figures from "./Figures.js";
-
-class Control extends Figures {
+class Control {
 	allowedCodes = ["ArrowRight", "ArrowLeft", "ArrowDown"];
 	activeFigureData = {};
 
