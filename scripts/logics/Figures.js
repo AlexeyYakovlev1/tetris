@@ -3,8 +3,9 @@ import Utils from "./Utils.js";
 import Draw from "./Draw.js";
 
 const draw = new Draw();
+const utils = new Utils();
 
-class Figures extends Utils {
+class Figures {
 	list = figures;
 	activeFigure = {};
 	activeFigureHaveSides = false;
@@ -12,12 +13,22 @@ class Figures extends Utils {
 	stopDropFigure = true;
 	coordinatesOfAllActiveSquares = [];
 
+	// Получение данных активной фигуры
 	get getActiveFigureData() {
 		return {
 			activeFigure: this.activeFigure,
 			activeFigureHaveSides: this.activeFigureHaveSides,
 			coordinatesOfAllActiveSquares: this.coordinatesOfAllActiveSquares
 		};
+	}
+
+	// Изменение данных для активной фигуры
+	set setActiveFigureData(value) {
+		const { activeFigure, activeFigureHaveSides, coordinatesOfAllActiveSquares } = value;
+
+		this.activeFigure = activeFigure;
+		this.activeFigureHaveSides = activeFigureHaveSides;
+		this.coordinatesOfAllActiveSquares = coordinatesOfAllActiveSquares;
 	}
 
 	// Объяление значений по умолчанию
@@ -33,7 +44,9 @@ class Figures extends Utils {
 	renderRandomFigure(n = this.list.length) {
 		// Ищем рандомную фигуру
 		const figureIdx = Math.floor(Math.random() * n);
-		const currentFigure = this.list[figureIdx];
+		// const currentFigure = this.list[figureIdx];
+		// DEBUG
+		const currentFigure = this.list[2];
 
 		// Рисуем
 		draw.draw(currentFigure);
@@ -97,10 +110,16 @@ class Figures extends Utils {
 
 	// Удаление/Добавление css класса квадрату
 	setSquareClass(coords, figureName) {
+		// console.log(
+		// 	`Координаты определенной стороны в начале setSquareClass`, coords
+		// );
+		// debugger
+		// console.log("======================================");
+
 		const cssClass = `figure__${figureName}`;
 		const { y: yList, x: xSquare } = coords;
 		const coordsForFindSquare = { x: xSquare, y: yList };
-		const $square = this.getHTMLSquaresByCoords(coordsForFindSquare)[0];
+		const $square = utils.getHTMLSquaresByCoords(coordsForFindSquare)[0];
 
 		$square.classList.remove(cssClass, "figure");
 
@@ -111,19 +130,24 @@ class Figures extends Utils {
 			this.activeFigure.yList -= 1;
 
 			const coordsForNextSquare = { y: yList - fillUpToY - 1, x: xSquare };
-			const $newSquare = this.getHTMLSquaresByCoords(coordsForNextSquare)[0];
+			const $newSquare = utils.getHTMLSquaresByCoords(coordsForNextSquare)[0];
 
 			$newSquare.classList.add(cssClass, "figure");
 		} else {
 			const { x, y, fillUpTo: { y: fillUpToY }, idxCurrentSide } = coords;
-			const $removedSquare = this.getHTMLSquaresByCoords({ x, y })[0];
+			const $removedSquare = utils.getHTMLSquaresByCoords({ x, y })[0];
 
 			$removedSquare.classList.remove(cssClass, "figure");
 
 			// Опускаем текущую сторону
 			this.activeFigure.sides[idxCurrentSide].yList -= 1;
 
-			const $newSquare = this.getHTMLSquaresByCoords({ y: y - fillUpToY - 1, x })[0];
+			// console.log(
+			// 	`Координаты определенной стороны в конце setSquareClass:`, this.activeFigure.sides[idxCurrentSide]
+			// );
+			// debugger
+
+			const $newSquare = utils.getHTMLSquaresByCoords({ y: y - fillUpToY - 1, x })[0];
 
 			$newSquare.classList.add(cssClass, "figure");
 		}
@@ -135,29 +159,37 @@ class Figures extends Utils {
 
 	// Каждую секунду опускаем активную фигуру
 	dropFigureAfterSeconds(sec = 1) {
-		const refreshPosition = setInterval(() => {
-			if (this.stopDropFigure === true) clearInterval(refreshPosition);
+		// console.log(
+		// 	`Координаты по умолчанию всех квадратов:`, this.coordinatesOfAllActiveSquares
+		// );
+		// debugger
+		// console.log("=====================");
 
-			const { name } = this.activeFigure;
+		// const refreshPosition = setInterval(() => {
+		// 	// if (this.stopDropFigure === true) clearInterval(refreshPosition);
+		// 	clearInterval(refreshPosition);
+		// 	const { name } = this.activeFigure;
 
-			if (this.activeFigureHaveSides === false) {
-				const { yList, xSquare, fillUpTo } = this.activeFigure;
-				const coords = { x: xSquare, y: yList, fillUpTo };
+		// 	if (this.activeFigureHaveSides === false) {
+		// 		const { yList, xSquare, fillUpTo } = this.activeFigure;
+		// 		const coords = { x: xSquare, y: yList, fillUpTo };
 
-				this.setSquareClass(coords, name);
-			} else {
-				this.activeFigure.sides.forEach((side, idx) => {
-					const { yList, xSquare, fillUpTo } = side;
-					const coords = { x: xSquare, y: yList, fillUpTo, idxCurrentSide: idx };
+		// 		this.setSquareClass(coords, name);
+		// 	} else {
+		// 		this.activeFigure.sides.forEach((side, idx) => {
+		// 			const { yList, xSquare, fillUpTo } = side;
+		// 			const coords = { x: xSquare, y: yList, fillUpTo, idxCurrentSide: idx };
 
-					this.setSquareClass(coords, name);
-				});
-			}
+		// 			this.setSquareClass(coords, name);
+		// 		});
+		// 	}
 
-			// Обновляем массив с координатами активных квадратов
-			this.coordinatesOfAllActiveSquares = [];
-			this.setCoordsSquaresFromActiveFigure();
-		}, sec * 1000);
+		// 	// Обновляем массив с координатами активных квадратов
+		// 	this.coordinatesOfAllActiveSquares = [];
+		// 	this.setCoordsSquaresFromActiveFigure();
+		// }, sec * 1000);
+
+		console.log("Координаты в Figures: ", this.activeFigure);
 	}
 }
 
