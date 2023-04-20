@@ -1,9 +1,8 @@
-import Figures from "./Figures.js";
+import figures from "../data/figures.js";
 
-class Field extends Figures {
+class Field {
 	constructor($field) {
-		super();
-
+		this.list = figures;
 		this.$field = $field;
 		this.squares = [];
 		this.gameStarted = false;
@@ -16,6 +15,10 @@ class Field extends Figures {
 
 	get getGamePaused() {
 		return this.getGamePaused;
+	}
+
+	get getCoordsOfSquares() {
+		return this.squares;
 	}
 
 	// Заполнить и нарисовать квадраты
@@ -67,12 +70,6 @@ class Field extends Figures {
 		this.gameStarted = true;
 
 		this.clear();
-		this.resetToDefaultValue();
-		this.renderRandomFigure();
-
-		this.setStopDropFigure = false;
-
-		this.dropFigureAfterSeconds();
 	}
 
 	// Продолжить играть после паузы
@@ -80,14 +77,11 @@ class Field extends Figures {
 		this.gamePaused = false;
 		this.gameStarted = true;
 		this.setStopDropFigure = false;
-
-		this.dropFigureAfterSeconds();
 	}
 
 	// Пауза
 	pause() {
 		this.gamePaused = true;
-		this.setStopDropFigure = true;
 	}
 }
 

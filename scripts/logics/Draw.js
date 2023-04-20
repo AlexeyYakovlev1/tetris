@@ -1,6 +1,8 @@
 import Utils from "./Utils.js";
 
-class Draw extends Utils {
+const utils = new Utils();
+
+class Draw {
 	// Рисование фигуры
 	draw(figure) {
 		// Проверка типа фигуры
@@ -14,14 +16,14 @@ class Draw extends Utils {
 	// Рисование фигур типа I
 	drawTypeI(figure) {
 		const { yList, xSquare, fillUpTo: { y: fillUpToY } } = figure;
-		const $startSquare = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
+		const $startSquare = utils.getHTMLSquaresByCoords({ x: xSquare, y: yList });
 
 		const cssClass = `figure__${figure.name}`;
 
 		$startSquare.classList.add(cssClass, "figure");
 
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
+			const $square = utils.getHTMLSquaresByCoords({ x: xSquare, y: i });
 
 			$square.classList.add(cssClass, "figure");
 		}
@@ -30,7 +32,7 @@ class Draw extends Utils {
 	// Растягивание фигур по вертикали Y
 	drawStretchingY(xSquare, yList, fillUpToY, cssClass) {
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
+			const $square = utils.getHTMLSquaresByCoords({ x: xSquare, y: i });
 
 			$square.classList.add(cssClass);
 		}
@@ -41,7 +43,7 @@ class Draw extends Utils {
 		const { xSquare, yList } = side;
 
 		for (let i = xSquare; i <= xSquare + fillUpToX; i++) {
-			const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
+			const $square = utils.getHTMLSquaresByCoords({ x: i, y: yList });
 
 			$square.classList.add(cssClass);
 		}
@@ -53,7 +55,7 @@ class Draw extends Utils {
 
 		figure.sides.forEach((side) => {
 			const { yList, xSquare, fillUpTo: { x: fillUpToX, y: fillUpToY } } = side;
-			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
+			const $square = utils.getHTMLSquaresByCoords({ x: xSquare, y: yList });
 
 			$square.classList.add(cssClass);
 

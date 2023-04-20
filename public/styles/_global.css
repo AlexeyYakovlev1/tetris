@@ -6,6 +6,10 @@
 	outline: none;
 }
 
+body {
+	background-color: #627D8C;
+}
+
 .container {
 	max-width: 400px;
 	margin: 0 auto;
