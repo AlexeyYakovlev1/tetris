@@ -36,9 +36,7 @@ class Figures {
 	renderRandomFigure(n = this.list.length) {
 		// Ищем рандомную фигуру
 		const figureIdx = Math.floor(Math.random() * n);
-		// const currentFigure = this.list[figureIdx];
-		// DEBUG
-		const currentFigure = this.list[2];
+		const currentFigure = this.list[figureIdx];
 
 		// Рисуем
 		draw.draw(currentFigure);
@@ -92,45 +90,33 @@ class Figures {
 		this.activeFigureData.coordinatesOfAllActiveSquares.push(...coords);
 	}
 
-	// Удаление/Добавление css класса квадрату
-	setSquareClass(coords, figureName) {
-		const { x, y, fillUpTo: { y: fillUpToY } } = coords;
-
-		// Удаляем текущий квадрат
-		utils.removeDefiniteSquare(coords, figureName);
-
-		// Добавляем следующий (нижний)
-		utils.addDefiniteSquare({ y: y - 1 - fillUpToY, x }, figureName);
-	}
-
 	// Каждую секунду опускаем активную фигуру
 	dropFigureAfterSeconds(sec = 1) {
 		const refreshPosition = setInterval(() => {
-			if (this.stopDropFigure === true) clearInterval(refreshPosition);
+			if (this.stopDropFigure === true) {
+				clearInterval(refreshPosition);
+				return;
+			}
 
 			const { name } = this.activeFigureData.activeFigure;
 
-			// Проверка на наличие сторон у фигуры
-			if (this.activeFigureData.activeFigureHaveSides === false) {
-				const { yList, xSquare, fillUpTo } = this.activeFigureData.activeFigure;
-				const coords = { x: xSquare, y: yList, fillUpTo };
-
-				this.setSquareClass(coords, name);
-				this.activeFigureData.activeFigure.yList -= 1;
+			// Опускаем
+			if (this.activeFigureData.activeFigureHaveSides === true) {
+				this.activeFigureData.activeFigure.sides.forEach((side) => side.yList -= 1);
 			} else {
-				this.activeFigureData.activeFigure.sides.forEach((side) => {
-					const { yList, xSquare, fillUpTo } = side;
-					const coords = { x: xSquare, y: yList, fillUpTo };
-
-					this.setSquareClass(coords, name);
-					side.yList -= 1;
-				});
+				this.activeFigureData.activeFigure.yList -= 1;
 			}
+
+			// Удаляем квадрат с текущими координатами (старый)
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => utils.removeDefiniteSquare(coords, name));
 
 			// Обновляем массив с координатами активных квадратов
 			this.activeFigureData.coordinatesOfAllActiveSquares = [];
 			this.setCoordsSquaresFromActiveFigure();
-		}, sec * 1000);
+
+			// Добавляем квадрат с обновленными координатами (новый)
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => utils.addDefiniteSquare(coords, name));
+		}, sec * 500);
 	}
 
 	// Правая стрелка
