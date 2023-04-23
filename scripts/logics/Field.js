@@ -1,12 +1,14 @@
 import figures from "../data/figures.js";
 
 class Field {
+	list = figures;
+	squares = [];
+	gameStarted = false;
+	gamePaused = true;
+	endOfField = [];
+
 	constructor($field) {
-		this.list = figures;
 		this.$field = $field;
-		this.squares = [];
-		this.gameStarted = false;
-		this.gamePaused = false;
 	}
 
 	get getGameStarted() {
@@ -21,16 +23,36 @@ class Field {
 		return this.squares;
 	}
 
+	get getEndOfField() {
+		return this.endOfField;
+	}
+
 	// Заполнить и нарисовать квадраты
 	fillAndDrawSquares() {
-		// заполняем
-		for (let i = 20; i >= 1; i--) {
+		// Заполняем
+		for (let y = 20; y >= 1; y--) {
 			const list = [];
-			for (let j = 1; j <= 10; j++) list.push({ x: j, y: i });
+
+			for (let x = 1; x <= 10; x++) {
+				let coords = { x, y };
+
+				// Определяем позиции для конечных квадратов
+				if (x === 1) coords = { ...coords, end: true, position: "LEFT" };
+				if (x === 10) coords = { ...coords, end: true, position: "RIGHT" };
+				if ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(x) && y === 1) coords = { ...coords, end: true, position: "DOWN" };
+
+				// Заполняем массив с координатами конечных квадратов
+				if (Object.keys(coords).includes("position")) {
+					this.endOfField.push(coords);
+				}
+
+				list.push(coords);
+			};
+
 			this.squares.push(list);
 		}
 
-		// рисуем
+		// Рисуем списки
 		for (let i = this.squares.length; i > 0; i--) {
 			this.$field.innerHTML += `
 				<ul class="field__list" data-y="${i}"></ul>
@@ -39,13 +61,15 @@ class Field {
 
 		const $fieldList = document.querySelectorAll(".field__list");
 
+		// Отрисовка квадратов для конкретного списка
 		$fieldList.forEach(($list, idx) => {
-			this.squares[idx].forEach(({ x, y }) => {
+			this.squares[idx].forEach(({ x, y, end, position }) => {
 				$list.innerHTML += `
 					<li
 						class="field__square"
 						data-x="${x}"
 						data-y="${y}"
+						${position ? `data-position="${position}"` : ""}
 					></li>
 				`;
 			});

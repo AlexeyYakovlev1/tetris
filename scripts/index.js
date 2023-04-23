@@ -5,10 +5,12 @@ const $field = document.querySelector(".field");
 const $btnStart = document.querySelector("#btn__start");
 const $btnPause = document.querySelector("#btn__pause");
 
-const figures = new Figures();
 const field = new Field($field);
-
 field.render();
+
+const figures = new Figures(field.getEndOfField);
+
+figures.defineEndOfField();
 
 document.addEventListener("keydown", (event) => {
 	if (field.getGameStarted === true) figures.move(event.code);

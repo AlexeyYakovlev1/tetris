@@ -16,14 +16,14 @@ class Draw {
 	// Рисование фигур типа I
 	drawTypeI(figure) {
 		const { yList, xSquare, fillUpTo: { y: fillUpToY } } = figure;
-		const $startSquare = utils.getHTMLSquaresByCoords({ x: xSquare, y: yList });
+		const $startSquare = utils.getHTMLSquareByCoords({ x: xSquare, y: yList });
 
 		const cssClass = `figure__${figure.name}`;
 
 		$startSquare.classList.add(cssClass, "figure");
 
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			const $square = utils.getHTMLSquaresByCoords({ x: xSquare, y: i });
+			const $square = utils.getHTMLSquareByCoords({ x: xSquare, y: i });
 
 			$square.classList.add(cssClass, "figure");
 		}
@@ -32,7 +32,7 @@ class Draw {
 	// Растягивание фигур по вертикали Y
 	drawStretchingY(xSquare, yList, fillUpToY, cssClass) {
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			const $square = utils.getHTMLSquaresByCoords({ x: xSquare, y: i });
+			const $square = utils.getHTMLSquareByCoords({ x: xSquare, y: i });
 
 			$square.classList.add(cssClass);
 		}
@@ -43,7 +43,7 @@ class Draw {
 		const { xSquare, yList } = side;
 
 		for (let i = xSquare; i <= xSquare + fillUpToX; i++) {
-			const $square = utils.getHTMLSquaresByCoords({ x: i, y: yList });
+			const $square = utils.getHTMLSquareByCoords({ x: i, y: yList });
 
 			$square.classList.add(cssClass);
 		}
@@ -55,7 +55,7 @@ class Draw {
 
 		figure.sides.forEach((side) => {
 			const { yList, xSquare, fillUpTo: { x: fillUpToX, y: fillUpToY } } = side;
-			const $square = utils.getHTMLSquaresByCoords({ x: xSquare, y: yList });
+			const $square = utils.getHTMLSquareByCoords({ x: xSquare, y: yList });
 
 			$square.classList.add(cssClass);
 

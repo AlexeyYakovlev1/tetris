@@ -9,12 +9,23 @@ class Figures {
 	list = figures;
 	refreshPosition = setInterval(() => { });
 	stopDropFigure = true;
-	allowedCodes = ["ArrowRight", "ArrowLeft", "ArrowDown"];
+	allowedCodesForControl = ["ArrowRight", "ArrowLeft", "ArrowDown"];
+	currentPositionActiveSquare = new Set();
+	renderNewFigure = false;
+	endPositions = {
+		DOWN: "DOWN",
+		RIGHT: "RIGHT",
+		LEFT: "LEFT"
+	};
 	activeFigureData = {
 		activeFigure: {},
 		activeFigureHaveSides: false,
 		coordinatesOfAllActiveSquares: []
 	};
+
+	constructor(endOfField) {
+		this.endOfField = endOfField;
+	}
 
 	set setStopDropFigure(value) {
 		this.stopDropFigure = value;
@@ -28,8 +39,10 @@ class Figures {
 			coordinatesOfAllActiveSquares: []
 		};
 
+		this.currentPositionActiveSquare = new Set();
 		this.refreshPosition = setInterval(() => { });
 		this.stopDropFigure = true;
+		this.renderNewFigure = false;
 	}
 
 	// Рисует рандомную фигуру
@@ -47,8 +60,11 @@ class Figures {
 
 	// Определяем переменные для активной фигуры
 	assignAnActiveFigure(figure) {
-		this.activeFigureData.activeFigure = figure;
-		this.activeFigureData.activeFigureHaveSides = Object.keys(figure).includes("sides");
+		this.activeFigureData = {
+			...this.activeFigureData,
+			activeFigure: figure,
+			activeFigureHaveSides: Object.keys(figure).includes("sides")
+		};
 		this.setCoordsSquaresFromActiveFigure();
 	}
 
@@ -90,6 +106,40 @@ class Figures {
 		this.activeFigureData.coordinatesOfAllActiveSquares.push(...coords);
 	}
 
+	// Определение конца поля относительно фигуры
+	defineEndOfField() {
+		const activeSquaresInEndField = this.activeFigureData.coordinatesOfAllActiveSquares.filter((coordsActiveSquare) => {
+			return this.endOfField.find((coordsEndSquare) => {
+				const { x, y } = coordsEndSquare;
+				return x === coordsActiveSquare.x && y === coordsActiveSquare.y;
+			});
+		});
+
+		// Забираем позиции из активных конечных квадратов
+		activeSquaresInEndField.forEach((coords) => {
+			const $square = utils.getHTMLSquareByCoords(coords);
+			const currentPosition = $square.dataset.position;
+
+			this.currentPositionActiveSquare.add(currentPosition);
+		});
+	};
+
+	// Определение фигур относительно активной фигуры
+	defineFiguresRegardingActiveFigure(position = this.endPositions.DOWN) {
+		if (position === this.endPositions.DOWN) {
+			const yActiveSquares = this.activeFigureData.coordinatesOfAllActiveSquares.map((coords) => Number(coords.y));
+			const minY = utils.findMinNumber(yActiveSquares);
+			const anyXByMinY = this.activeFigureData.coordinatesOfAllActiveSquares.filter((coords) => coords.y === minY)[0].x;
+
+			const $nextSquare = utils.getHTMLSquareByCoords({ x: anyXByMinY, y: minY - 1 });
+
+			if ($nextSquare !== null && $nextSquare.classList.contains("figure")) {
+				this.renderNewFigure = true;
+				return;
+			}
+		}
+	};
+
 	// Каждую секунду опускаем активную фигуру
 	dropFigureAfterSeconds(sec = 1) {
 		const refreshPosition = setInterval(() => {
@@ -99,6 +149,20 @@ class Figures {
 			}
 
 			const { name } = this.activeFigureData.activeFigure;
+
+			// Если фигуры на крае поля (снизу)
+			if (
+				this.currentPositionActiveSquare.has(this.endPositions.DOWN) ||
+				this.renderNewFigure === true
+			) {
+				// Сохраняем класс figure для квадратов
+				this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => utils.addDefiniteSquare(coords, name));
+
+				this.resetToDefaultValue();
+				this.renderRandomFigure();
+				this.stopDropFigure = false;
+				return;
+			};
 
 			// Опускаем
 			if (this.activeFigureData.activeFigureHaveSides === true) {
@@ -116,11 +180,19 @@ class Figures {
 
 			// Добавляем квадрат с обновленными координатами (новый)
 			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => utils.addDefiniteSquare(coords, name));
+
+			this.defineEndOfField();
+			this.defineFiguresRegardingActiveFigure();
 		}, sec * 500);
 	}
 
 	// Правая стрелка
 	right() {
+		// Если при смещении вправо фигура находится на крае поля
+		if (this.currentPositionActiveSquare.has(this.endPositions.RIGHT)) {
+			return;
+		};
+
 		const { activeFigureHaveSides, activeFigure } = this.activeFigureData;
 
 		// Меняем координату X для стороны
@@ -130,6 +202,11 @@ class Figures {
 
 	// Левая стрелка
 	left() {
+		// Если при смещении влево фигура находится на крае поля
+		if (this.currentPositionActiveSquare.has(this.endPositions.LEFT)) {
+			return;
+		};
+
 		const { activeFigureHaveSides, activeFigure } = this.activeFigureData;
 
 		// Меняем координату X для стороны
@@ -144,7 +221,7 @@ class Figures {
 
 	// Распределение кликов
 	move(code) {
-		if (this.allowedCodes.includes(code) === false) {
+		if (this.allowedCodesForControl.includes(code) === false) {
 			return;
 		}
 
