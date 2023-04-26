@@ -16,56 +16,32 @@ class Draw {
 	// Рисование фигур типа I
 	drawTypeI(figure) {
 		const { yList, xSquare, fillUpTo: { y: fillUpToY } } = figure;
-		const $startSquare = utils.getHTMLSquareByCoords({ x: xSquare, y: yList });
 
-		const cssClass = `figure__${figure.name}`;
+		utils.addDefiniteSquare({ x: xSquare, y: yList }, figure.name);
 
-		$startSquare.classList.add(cssClass, "figure");
-
-		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			const $square = utils.getHTMLSquareByCoords({ x: xSquare, y: i });
-
-			$square.classList.add(cssClass, "figure");
-		}
+		for (let i = yList - 1; i >= yList - fillUpToY; i--) utils.addDefiniteSquare({ x: xSquare, y: i }, figure.name);
 	}
 
 	// Растягивание фигур по вертикали Y
-	drawStretchingY(xSquare, yList, fillUpToY, cssClass) {
-		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			const $square = utils.getHTMLSquareByCoords({ x: xSquare, y: i });
-
-			$square.classList.add(cssClass);
-		}
+	drawStretchingY(xSquare, yList, fillUpToY, figureName) {
+		for (let i = yList - 1; i >= yList - fillUpToY; i--) utils.addDefiniteSquare({ x: xSquare, y: i }, figureName);
 	}
 
 	// Растягивание фигур по горизонтали X
-	drawStretchingX(side, fillUpToX, cssClass) {
+	drawStretchingX(side, fillUpToX, figureName) {
 		const { xSquare, yList } = side;
-
-		for (let i = xSquare; i <= xSquare + fillUpToX; i++) {
-			const $square = utils.getHTMLSquareByCoords({ x: i, y: yList });
-
-			$square.classList.add(cssClass);
-		}
+		for (let i = xSquare; i <= xSquare + fillUpToX; i++) utils.addDefiniteSquare({ x: i, y: yList }, figureName);
 	}
 
 	// Метод рисования фигур (кроме I типа)
 	drawOtherFigures(figure) {
-		const cssClass = `figure__${figure.name}`;
-
 		figure.sides.forEach((side) => {
 			const { yList, xSquare, fillUpTo: { x: fillUpToX, y: fillUpToY } } = side;
-			const $square = utils.getHTMLSquareByCoords({ x: xSquare, y: yList });
 
-			$square.classList.add(cssClass);
+			utils.addDefiniteSquare({ x: xSquare, y: yList }, figure.name);
 
-			if (fillUpToX !== 0) {
-				this.drawStretchingX(side, fillUpToX, cssClass);
-			}
-
-			if (fillUpToY !== 0) {
-				this.drawStretchingY(xSquare, yList, fillUpToY, cssClass);
-			}
+			if (fillUpToX !== 0) this.drawStretchingX(side, fillUpToX, figure.name);
+			if (fillUpToY !== 0) this.drawStretchingY(xSquare, yList, fillUpToY, figure.name);
 		});
 	}
 }

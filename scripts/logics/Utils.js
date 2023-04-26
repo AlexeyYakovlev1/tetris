@@ -10,7 +10,7 @@ class Utils {
 		const cssClass = `figure__${nameActiveFigure}`;
 		const $square = this.getHTMLSquareByCoords(coords);
 
-		$square.classList.remove(cssClass, "figure");
+		$square.classList.remove(cssClass, "figure", "active--figure");
 	}
 
 	// Добавление определенного квадрата
@@ -18,18 +18,7 @@ class Utils {
 		const cssClass = `figure__${nameActiveFigure}`;
 		const $square = this.getHTMLSquareByCoords(coords);
 
-		$square.classList.add(cssClass, "figure");
-	}
-
-	// Нахождение минимального числа
-	findMinNumber(arr) {
-		if (arr.length === 0) return;
-
-		let min = arr[0];
-
-		for (let i = 0; i < arr.length; i++) if (arr[i] < min) min = arr[i];
-
-		return min;
+		$square.classList.add(cssClass, "figure", "active--figure");
 	}
 }
 
