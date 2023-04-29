@@ -1,69 +1,76 @@
 import Utils from "./Utils.js";
 
-class Draw extends Utils {
-	// Рисование фигуры
-	draw(figure) {
+const utils = new Utils();
+
+class Draw {
+	/**
+	 * Рисование фигуры
+	 * @param {object} figure Объект фигуры
+	 * @public
+	 */
+	init(figure) {
 		// Проверка типа фигуры
-		if (!Object.keys(figure).includes("sides")) {
-			this.drawTypeI(figure);
-		} else if (figure.sides.length >= 2) {
-			this.drawOtherFigures(figure);
-		}
+		if (!Object.keys(figure).includes("sides")) this.drawTypeI(figure);
+		else if (figure.sides.length >= 2) this.drawOtherFigures(figure);
 	}
 
-	// Рисование фигур типа I
+	/**
+	 * Рисование фигур типа I
+	 * @param {object} figure Объект фигуры
+	 * @public
+	 */
 	drawTypeI(figure) {
 		const { yList, xSquare, fillUpTo: { y: fillUpToY } } = figure;
-		const $startSquare = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
 
-		const cssClass = `figure__${figure.name}`;
-
-		$startSquare.classList.add(cssClass, "figure");
+		utils.addDefiniteSquare({ x: xSquare, y: yList }, figure.name);
 
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
-
-			$square.classList.add(cssClass, "figure");
+			utils.addDefiniteSquare({ x: xSquare, y: i }, figure.name);
 		}
 	}
 
-	// Растягивание фигур по вертикали Y
-	drawStretchingY(xSquare, yList, fillUpToY, cssClass) {
+	/**
+	 * Растягивание фигур по вертикали Y
+	 * @param {number} xSquare Координата x
+	 * @param {number} yList Координата y
+	 * @param {number} fillUpToY На сколько нужно растянуть по вертикали
+	 * @param {string} figureName Имя фигуры
+	 * @public
+	 */
+	drawStretchingY(xSquare, yList, fillUpToY, figureName) {
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: i })[0];
-
-			$square.classList.add(cssClass);
+			utils.addDefiniteSquare({ x: xSquare, y: i }, figureName);
 		}
 	}
 
-	// Растягивание фигур по горизонтали X
-	drawStretchingX(side, fillUpToX, cssClass) {
+	/**
+	 * Растягивание фигур по горизонтали X
+	 * @param {object} side Объект стороны
+	 * @param {number} fillUpToX На сколько нужно растянуть по горизонтали
+	 * @param {string} figureName Имя фигуры
+	 * @public
+	 */
+	drawStretchingX(side, fillUpToX, figureName) {
 		const { xSquare, yList } = side;
 
 		for (let i = xSquare; i <= xSquare + fillUpToX; i++) {
-			const $square = this.getHTMLSquaresByCoords({ x: i, y: yList })[0];
-
-			$square.classList.add(cssClass);
+			utils.addDefiniteSquare({ x: i, y: yList }, figureName);
 		}
 	}
 
-	// Метод рисования фигур (кроме I типа)
+	/**
+	 * Рисование фигур кроме I типа
+	 * @param {object} figure Объект фигуры
+	 * @public
+	 */
 	drawOtherFigures(figure) {
-		const cssClass = `figure__${figure.name}`;
-
 		figure.sides.forEach((side) => {
 			const { yList, xSquare, fillUpTo: { x: fillUpToX, y: fillUpToY } } = side;
-			const $square = this.getHTMLSquaresByCoords({ x: xSquare, y: yList })[0];
 
-			$square.classList.add(cssClass);
+			utils.addDefiniteSquare({ x: xSquare, y: yList }, figure.name);
 
-			if (fillUpToX !== 0) {
-				this.drawStretchingX(side, fillUpToX, cssClass);
-			}
-
-			if (fillUpToY !== 0) {
-				this.drawStretchingY(xSquare, yList, fillUpToY, cssClass);
-			}
+			if (fillUpToX !== 0) this.drawStretchingX(side, fillUpToX, figure.name);
+			if (fillUpToY !== 0) this.drawStretchingY(xSquare, yList, fillUpToY, figure.name);
 		});
 	}
 }

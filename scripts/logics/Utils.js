@@ -1,10 +1,38 @@
 class Utils {
-	// Получение квадратов из html по координатам
-	getHTMLSquaresByCoords(coords) {
+	/**
+	 * Получение квадратов из html по координатам
+	 * @param {object} coords Объект координат
+	 * @public
+	 */
+	getHTMLSquareByCoords(coords) {
 		const { x, y } = coords;
-		const $fieldSquares = document.querySelectorAll(`.field__square[data-x="${x}"][data-y="${y}"]`);
+		return document.querySelector(`.field__square[data-x="${x}"][data-y="${y}"]`);
+	}
 
-		return $fieldSquares;
+	/**
+	 * Удаление определенного квадрата
+	 * @param {object} coords Объект координат
+	 * @param {string} nameActiveFigure Имя активной фигуры
+	 * @public
+	 */
+	removeDefiniteSquare(coords, nameActiveFigure) {
+		const cssClass = `figure__${nameActiveFigure}`;
+		const $square = this.getHTMLSquareByCoords(coords);
+
+		$square.classList.remove(cssClass, "figure", "active--figure");
+	}
+
+	/**
+	 * Добавление определенного квадрата
+	 * @param {object} coords Объект координат
+	 * @param {string} nameActiveFigure Имя активной фигуры
+	 * @public
+	 */
+	addDefiniteSquare(coords, nameActiveFigure) {
+		const cssClass = `figure__${nameActiveFigure}`;
+		const $square = this.getHTMLSquareByCoords(coords);
+
+		$square.classList.add(cssClass, "figure", "active--figure");
 	}
 }
 

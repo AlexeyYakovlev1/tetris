@@ -3,161 +3,551 @@ import Utils from "./Utils.js";
 import Draw from "./Draw.js";
 
 const draw = new Draw();
+const utils = new Utils();
 
-class Figures extends Utils {
+class Figures {
 	list = figures;
-	activeFigure = {};
-	activeFigureHaveSides = false;
-	refreshPosition = null;
+	refreshPosition = setInterval(() => { });
 	stopDropFigure = true;
-	coordinatesOfAllActiveSquares = [];
+	allowedCodesForControl = ["ArrowRight", "ArrowLeft", "ArrowDown"];
+	currentPositionActiveSquare = new Set();
+	renderNewFigure = false;
+	endPositions = {
+		DOWN: "DOWN",
+		RIGHT: "RIGHT",
+		LEFT: "LEFT"
+	};
+	activeFigureData = {
+		activeFigure: {},
+		activeFigureHaveSides: false,
+		coordinatesOfAllActiveSquares: []
+	};
 
-	get getActiveFigureData() {
-		return {
-			activeFigure: this.activeFigure,
-			activeFigureHaveSides: this.activeFigureHaveSides,
-			coordinatesOfAllActiveSquares: this.coordinatesOfAllActiveSquares
-		};
-	}
-
-	// Объяление значений по умолчанию
-	resetToDefaultValue() {
-		this.activeFigure = {};
-		this.activeFigureHaveSides = false;
-		this.refreshPosition = null;
-		this.stopDropFigure = true;
-		this.coordinatesOfAllActiveSquares = [];
-	}
-
-	// Рисует рандомную фигуру
-	renderRandomFigure(n = this.list.length) {
-		// Ищем рандомную фигуру
-		const figureIdx = Math.floor(Math.random() * n);
-		const currentFigure = this.list[figureIdx];
-
-		// Рисуем
-		draw.draw(currentFigure);
-
-		// Назначаем
-		this.assignAnActiveFigure(currentFigure);
-	}
-
-	// Определяем переменные для активной фигуры
-	assignAnActiveFigure(figure) {
-		this.activeFigure = figure;
-		this.activeFigureHaveSides = Object.keys(figure).includes("sides");
-		this.setCoordsSquaresFromActiveFigure();
-	}
-
-	// Определяем координаты всех квадратов активной фигуры
-	setCoordsSquaresFromActiveFigure(figure = this.activeFigure) {
-		const { yList, xSquare, fillUpTo } = figure;
-
-		// Если у фигуры есть стороны
-		if (yList === undefined || xSquare === undefined) {
-			if (this.activeFigureHaveSides === true) {
-				figure.sides.forEach(s => this.setCoordsSquaresFromActiveFigure(s));
-			}
-			return
-		}
-
-		const { x: fillUpToX, y: fillUpToY } = fillUpTo;
-		const coords = [];
-
-		// Если сторона не расширяется
-		if (fillUpToY === 0 && fillUpToX === 0) {
-			coords.push({ x: xSquare, y: yList });
-		}
-
-		// Если сторона расширяется по Y
-		if (fillUpToY && fillUpToX === 0) {
-			for (let i = yList; i >= yList - fillUpToY; i--) {
-				coords.push({ x: xSquare, y: i });
-			}
-		}
-
-		// Если сторона расширяется по X
-		if (fillUpToX && fillUpToY === 0) {
-			for (let i = xSquare; i >= xSquare - fillUpToX; i--) {
-				coords.push({ x: i, y: yList });
-			}
-		}
-
-		// Если сторона расширяется по X и Y
-		if (fillUpToY && fillUpToX) {
-			for (let i = xSquare; i >= xSquare - fillUpToX; i--) {
-				for (let j = yList; j >= yList - fillUpToY; j--) {
-					coords.push({ x: i, y: j });
-				}
-			}
-		}
-
-		this.coordinatesOfAllActiveSquares.push(...coords);
-	}
-
-	// Удаление/Добавление css класса квадрату
-	setSquareClass(coords, figureName) {
-		const cssClass = `figure__${figureName}`;
-		const { y: yList, x: xSquare } = coords;
-		const coordsForFindSquare = { x: xSquare, y: yList };
-		const $square = this.getHTMLSquaresByCoords(coordsForFindSquare)[0];
-
-		$square.classList.remove(cssClass, "figure");
-
-		// Если у активной фигуры нет сторон
-		if (this.activeFigureHaveSides === false) {
-			const { fillUpTo: { y: fillUpToY } } = coords;
-
-			this.activeFigure.yList -= 1;
-
-			const coordsForNextSquare = { y: yList - fillUpToY - 1, x: xSquare };
-			const $newSquare = this.getHTMLSquaresByCoords(coordsForNextSquare)[0];
-
-			$newSquare.classList.add(cssClass, "figure");
-		} else {
-			const { x, y, fillUpTo: { y: fillUpToY }, idxCurrentSide } = coords;
-			const $removedSquare = this.getHTMLSquaresByCoords({ x, y })[0];
-
-			$removedSquare.classList.remove(cssClass, "figure");
-
-			// Опускаем текущую сторону
-			this.activeFigure.sides[idxCurrentSide].yList -= 1;
-
-			const $newSquare = this.getHTMLSquaresByCoords({ y: y - fillUpToY - 1, x })[0];
-
-			$newSquare.classList.add(cssClass, "figure");
-		}
+	constructor(endOfField, gameOver) {
+		this.endOfField = endOfField;
+		this.gameOver = gameOver;
 	}
 
 	set setStopDropFigure(value) {
 		this.stopDropFigure = value;
 	}
 
-	// Каждую секунду опускаем активную фигуру
+	/**
+	 * Объяление значений по умолчанию
+	 * @public
+	 */
+	resetToDefaultValue() {
+		this.activeFigureData = {
+			activeFigure: {},
+			activeFigureHaveSides: false,
+			coordinatesOfAllActiveSquares: []
+		};
+
+		// Каким-то образом изменяется массив figures, поэтому обнуление будет выглядеть так (
+		this.list = [
+			{
+				color: "#FAFF00",
+				name: "O",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 5,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					},
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#00E4FF",
+				name: "I",
+				yList: 20,
+				xSquare: 6,
+				fillUpTo: {
+					y: 3,
+					x: 0
+				}
+			},
+			{
+				color: "#F60000",
+				name: "S",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					},
+					{
+						yList: 20,
+						xSquare: 7,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					},
+					{
+						yList: 19,
+						xSquare: 5,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#69B625",
+				name: "Z",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					},
+					{
+						yList: 20,
+						xSquare: 5,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					},
+					{
+						yList: 19,
+						xSquare: 7,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#FF8D00",
+				name: "L",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 2,
+							x: 0
+						}
+					},
+					{
+						yList: 18,
+						xSquare: 5,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#FF51BC",
+				name: "J",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 2,
+							x: 0
+						}
+					},
+					{
+						yList: 18,
+						xSquare: 7,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#9F0096",
+				name: "T",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 5,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					},
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					},
+					{
+						yList: 20,
+						xSquare: 4,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					}
+				]
+			},
+		];
+		this.currentPositionActiveSquare = new Set();
+		this.refreshPosition = setInterval(() => { });
+		this.stopDropFigure = true;
+		this.renderNewFigure = false;
+	}
+
+	/**
+	 * Рисует рандомную фигуру
+	 * @param {number} n Номер для нахождения рандомной фигуры
+	 * @public
+	 */
+	renderRandomFigure(n = this.list.length) {
+		// Ищем рандомную фигуру
+		const figureIdx = Math.floor(Math.random() * n);
+		const currentFigure = this.list[figureIdx];
+
+		// Рисуем на начальной позиции
+		draw.init(currentFigure);
+
+		// Назначаем
+		this.assignAnActiveFigure(currentFigure);
+
+		// Если при рендере новой фигуры снизу уже есть фигуры
+		if (this._checkIfFigureCanBeDropped(currentFigure) === false) {
+			this.resetToDefaultValue();
+			this.gameOver();
+			return;
+		}
+	}
+
+	/**
+	 * Проверка для отрисованной фигуры на разрешение падать
+	 * @private
+	 */
+	_checkIfFigureCanBeDropped() {
+		if (this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN, true) === true) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Определяем переменные для активной фигуры
+	 * @param {object} figure Объект фигуры
+	 * @public
+	 */
+	assignAnActiveFigure(figure) {
+		this.activeFigureData = {
+			...this.activeFigureData,
+			activeFigure: figure,
+			activeFigureHaveSides: Object.keys(figure).includes("sides")
+		};
+		this.setCoordsSquaresFromActiveFigure();
+	}
+
+	/**
+	 * Определяем координаты всех квадратов активной фигуры
+	 * @param {object} figure Объект фигуры
+	 * @public
+	 */
+	setCoordsSquaresFromActiveFigure(figure = this.activeFigureData.activeFigure) {
+		const { yList, xSquare, fillUpTo } = figure;
+
+		// Если у фигуры есть стороны
+		if (yList === undefined || xSquare === undefined) {
+			if (this.activeFigureData.activeFigureHaveSides === true) {
+				figure.sides.forEach(s => this.setCoordsSquaresFromActiveFigure(s));
+			}
+			return;
+		}
+
+		const { x: fillUpToX, y: fillUpToY } = fillUpTo;
+		const coords = [];
+
+		// Если сторона не расширяется
+		if (fillUpToY === 0 && fillUpToX === 0) coords.push({ x: xSquare, y: yList });
+
+		// Если сторона расширяется по Y
+		if (fillUpToY !== 0 && fillUpToX === 0) {
+			for (let i = yList; i >= yList - fillUpToY; i--) coords.push({ x: xSquare, y: i });
+		}
+
+		// Если сторона расширяется по X
+		if (fillUpToX !== 0 && fillUpToY === 0) {
+			for (let i = xSquare; i >= xSquare - fillUpToX; i--) coords.push({ x: i, y: yList });
+		}
+
+		// Если сторона расширяется по X и Y
+		if (fillUpToY !== 0 && fillUpToX !== 0) {
+			for (let i = xSquare; i >= xSquare - fillUpToX; i--) {
+				for (let j = yList; j >= yList - fillUpToY; j--) coords.push({ x: i, y: j });
+			}
+		}
+
+		this.activeFigureData.coordinatesOfAllActiveSquares.push(...coords);
+	}
+
+	/**
+	 * Определение конца поля относительно фигуры
+	 * @public
+	 */
+	defineEndOfField() {
+		const activeSquaresInEndField = this.activeFigureData.coordinatesOfAllActiveSquares.filter((coordsActiveSquare) => {
+			return this.endOfField.find((coordsEndSquare) => {
+				const { x, y } = coordsEndSquare;
+				return x === coordsActiveSquare.x && y === coordsActiveSquare.y;
+			});
+		});
+
+		// Забираем позиции из активных конечных квадратов
+		activeSquaresInEndField.forEach((coords) => {
+			const $square = utils.getHTMLSquareByCoords(coords);
+			const currentPosition = $square.dataset.position;
+
+			this.currentPositionActiveSquare.add(currentPosition);
+		});
+	}
+
+	/**
+	 * Определение фигур относительно активной фигуры
+	 * @param {string} position Позиция, которая определяет конец поля
+	 * @param {boolean} renderFigureReturn (optional) Для только что отрисованной фигуры если true, то при столкновении с фигурами метод будет возвращать true
+	 * @public
+	 */
+	defineFiguresRegardingActiveFigure(position, isCollidingWithOtherFigures = false) {
+		const { coordinatesOfAllActiveSquares } = this.activeFigureData;
+		const $activeSquares = [];
+
+		// Находим все активные квадраты
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			$activeSquares.push(utils.getHTMLSquareByCoords(coords));
+		});
+
+		// Заменяю if-ом, потому что ругается ident в eslint
+		if (position === this.endPositions.DOWN) {
+			return this._identifyFiguresLocatedToDownOfActiveOne($activeSquares, isCollidingWithOtherFigures);
+		} else if (position === this.endPositions.RIGHT) {
+			return this._identifyFiguresLocatedToRightOfActiveOne($activeSquares);
+		} else if (position === this.endPositions.LEFT) {
+			return this._identifyFiguresLocatedToLeftOfActiveOne($activeSquares);
+		}
+	}
+
+	/**
+	 * Определяет фигуры снизу относительно активной фигуры
+	 * @param {HTMLCollection} $activeSquares Активные HTML квадраты
+	 * @param {boolean} renderFigureReturn Для только что отрисованной фигуры если true, то при столкновении с фигурами метод будет возвращать true
+	 * @private
+	 */
+	_identifyFiguresLocatedToDownOfActiveOne($activeSquares, isCollidingWithOtherFigures) {
+		let flag = false;
+
+		$activeSquares.forEach(($square) => {
+			const { x, y } = $square.dataset;
+			const $nextSquare = utils.getHTMLSquareByCoords({ x, y: Number(y) - 1 });
+
+			// Если следующий квадрат будет содержаться в определенной фигуре
+			if (this._conditionForDefineFiguresRegardingActiveFigure($nextSquare)) {
+				flag = true;
+				this.renderNewFigure = true;
+				return;
+			}
+		});
+
+		if (isCollidingWithOtherFigures === true && flag === true) return true;
+	}
+
+	/**
+	 * Определяет фигуры слева относительно активной фигуры
+	 * @param {HTMLCollection} $activeSquares Активные HTML квадраты
+	 * @private
+	 */
+	_identifyFiguresLocatedToLeftOfActiveOne($activeSquares) {
+		const squaresInFigureToRight = $activeSquares.filter(($square) => {
+			const { x, y } = $square.dataset;
+			const $rightSquare = utils.getHTMLSquareByCoords({ x: Number(x) - 1, y });
+
+			// Если следующий правый квадрат будет содержаться в определенной фигуре
+			return this._conditionForDefineFiguresRegardingActiveFigure($rightSquare);
+		});
+
+		return !!squaresInFigureToRight.length;
+	}
+
+	/**
+	 * Определяет фигуры справа относительно активной фигуры
+	 * @param {HTMLCollection} $activeSquares Активные HTML квадраты
+	 * @private
+	 */
+	_identifyFiguresLocatedToRightOfActiveOne($activeSquares) {
+		const squaresInFigureToRight = $activeSquares.filter(($square) => {
+			const { x, y } = $square.dataset;
+			const $rightSquare = utils.getHTMLSquareByCoords({ x: Number(x) + 1, y });
+
+			// Если следующий правый квадрат будет содержаться в определенной фигуре
+			return this._conditionForDefineFiguresRegardingActiveFigure($rightSquare);
+		});
+
+		return !!squaresInFigureToRight.length;
+	}
+
+	/**
+	 * Условие для определения фигур относительно активных квадратов фигуры
+	 * @param {HTMLElement} $square HTML квадрат
+	 * @private
+	 */
+	_conditionForDefineFiguresRegardingActiveFigure($square) {
+		return (
+			$square !== null &&
+			$square.classList.contains("figure") &&
+			!$square.classList.contains("active--figure")
+		);
+	}
+
+	/**
+	 * Каждую секунду опускаем активную фигуру
+	 * @param {number} sec Время, через которое будет опускаться активная фигура
+	 * @public
+	 */
 	dropFigureAfterSeconds(sec = 1) {
 		const refreshPosition = setInterval(() => {
-			if (this.stopDropFigure === true) clearInterval(refreshPosition);
-
-			const { name } = this.activeFigure;
-
-			if (this.activeFigureHaveSides === false) {
-				const { yList, xSquare, fillUpTo } = this.activeFigure;
-				const coords = { x: xSquare, y: yList, fillUpTo };
-
-				this.setSquareClass(coords, name);
-			} else {
-				this.activeFigure.sides.forEach((side, idx) => {
-					const { yList, xSquare, fillUpTo } = side;
-					const coords = { x: xSquare, y: yList, fillUpTo, idxCurrentSide: idx };
-
-					this.setSquareClass(coords, name);
-				});
+			if (this.stopDropFigure === true) {
+				clearInterval(refreshPosition);
+				return;
 			}
 
+			const { name } = this.activeFigureData.activeFigure;
+
+			// Если фигуры на крае поля (снизу) или столкнулась с другой фигурой
+			if (
+				this.currentPositionActiveSquare.has(this.endPositions.DOWN) ||
+				this.renderNewFigure === true
+			) {
+				// Очищаем текущие квадраты от активной фигуры
+				this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+					const $square = utils.getHTMLSquareByCoords(coords);
+					$square.classList.remove("active--figure");
+					$square.removeAttribute("data-position");
+				});
+
+				this.resetToDefaultValue();
+				this.renderRandomFigure();
+				this.stopDropFigure = false;
+				return;
+			}
+
+			// Опускаем
+			if (this.activeFigureData.activeFigureHaveSides === true) {
+				this.activeFigureData.activeFigure.sides.forEach((side) => side.yList -= 1);
+			} else {
+				this.activeFigureData.activeFigure.yList -= 1;
+			}
+
+			// Удаляем квадрат с текущими координатами (старый)
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => utils.removeDefiniteSquare(coords, name));
+
 			// Обновляем массив с координатами активных квадратов
-			this.coordinatesOfAllActiveSquares = [];
+			this.activeFigureData.coordinatesOfAllActiveSquares = [];
 			this.setCoordsSquaresFromActiveFigure();
-		}, sec * 1000);
+
+			// Добавляем квадрат с обновленными координатами (новый)
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => utils.addDefiniteSquare(coords, name));
+
+			this.defineEndOfField();
+			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN);
+		}, sec * 200);
+	}
+
+	/**
+	 * Правая стрелка
+	 * @public
+	 */
+	right() {
+		// Если при смещении вправо фигура находится на крае поля
+		if (
+			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) ||
+			this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true
+		) {
+			console.log(
+				this.currentPositionActiveSquare.has(this.endPositions.RIGHT) === true,
+				this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true
+			);
+			return;
+		}
+
+		const { activeFigureHaveSides, activeFigure } = this.activeFigureData;
+
+		// Меняем координату X для стороны
+		if (activeFigureHaveSides) activeFigure.sides.forEach((side) => side.xSquare += 1);
+		else activeFigure.xSquare += 1;
+	}
+
+	/**
+	 * Левая стрелка
+	 * @public
+	 */
+	left() {
+		// Если при смещении влево фигура находится на крае поля
+		if (
+			this.currentPositionActiveSquare.has(this.endPositions.LEFT) ||
+			this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
+		) {
+			console.log(
+				this.currentPositionActiveSquare.has(this.endPositions.LEFT) === true,
+				this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
+			);
+			return;
+		}
+
+		const { activeFigureHaveSides, activeFigure } = this.activeFigureData;
+
+		// Меняем координату X для стороны
+		if (activeFigureHaveSides) activeFigure.sides.forEach((side) => side.xSquare -= 1);
+		else activeFigure.xSquare -= 1;
+	}
+
+	/**
+	 * Нижняя стрелка
+	 * @public
+	 */
+	down() {
+		console.log("down click");
+	}
+
+	/**
+	 * Распределение кликов
+	 * @public
+	 */
+	move(code) {
+		if (this.allowedCodesForControl.includes(code) === false) return;
+
+		// Заменяю if-ом, потому что ругается ident в eslint
+		if (code === "ArrowRight") this.right();
+		else if (code === "ArrowLeft") this.left();
+		else if (code === "ArrowDown") this.down();
 	}
 }
 
