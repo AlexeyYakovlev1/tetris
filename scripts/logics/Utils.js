@@ -1,11 +1,20 @@
 class Utils {
-	// Получение квадратов из html по координатам
+	/**
+	 * Получение квадратов из html по координатам
+	 * @param {object} coords Объект координат
+	 * @public
+	 */
 	getHTMLSquareByCoords(coords) {
 		const { x, y } = coords;
 		return document.querySelector(`.field__square[data-x="${x}"][data-y="${y}"]`);
 	}
 
-	// Удаление определенного квадрата
+	/**
+	 * Удаление определенного квадрата
+	 * @param {object} coords Объект координат
+	 * @param {string} nameActiveFigure Имя активной фигуры
+	 * @public
+	 */
 	removeDefiniteSquare(coords, nameActiveFigure) {
 		const cssClass = `figure__${nameActiveFigure}`;
 		const $square = this.getHTMLSquareByCoords(coords);
@@ -13,7 +22,12 @@ class Utils {
 		$square.classList.remove(cssClass, "figure", "active--figure");
 	}
 
-	// Добавление определенного квадрата
+	/**
+	 * Добавление определенного квадрата
+	 * @param {object} coords Объект координат
+	 * @param {string} nameActiveFigure Имя активной фигуры
+	 * @public
+	 */
 	addDefiniteSquare(coords, nameActiveFigure) {
 		const cssClass = `figure__${nameActiveFigure}`;
 		const $square = this.getHTMLSquareByCoords(coords);

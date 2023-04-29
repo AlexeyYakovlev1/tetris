@@ -1,0 +1,29 @@
+{
+  "name": "tetris",
+  "version": "1.0.0",
+  "description": "Web-game which builded on Javascript and DOM",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexeyYakovlev1/tetris.git"
+  },
+  "keywords": [
+    "game",
+    "tetris",
+    "js",
+    "dom",
+    "web"
+  ],
+  "author": "Alexey Yakovlev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlexeyYakovlev1/tetris/issues"
+  },
+  "homepage": "https://github.com/AlexeyYakovlev1/tetris#readme",
+  "devDependencies": {
+    "eslint": "^8.39.0"
+  }
+}

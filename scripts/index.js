@@ -4,21 +4,26 @@ import Figures from "./logics/Figures.js";
 const $field = document.querySelector(".field");
 const $btnStart = document.querySelector("#btn__start");
 const $btnPause = document.querySelector("#btn__pause");
+const $gameOverContentRestart = document.querySelector(".gameOver__content--restart");
 
 const field = new Field($field);
 field.render();
 
-const figures = new Figures(field.getEndOfField);
+const figures = new Figures(field.getEndOfField, field.finishGameOver);
 
 figures.defineEndOfField();
 
 document.addEventListener("keydown", (event) => {
-	if (field.getGameStarted === true) figures.move(event.code);
+	if (field.getGameStarted === true && field.getGameOver === false) figures.move(event.code);
+});
+
+$gameOverContentRestart.addEventListener("click", () => {
+	window.location.reload();
 });
 
 $btnStart.addEventListener("click", () => {
 	if ($btnStart.textContent === "Restart") {
-		window.location.reload();
+		window.location.reload(); // Рестарт нужно изменить
 	} else if ($btnStart.textContent === "Start") {
 		field.startPlay();
 
