@@ -10,6 +10,15 @@ class Utils {
 	}
 
 	/**
+	 * Получение списка из html по координатам
+	 * @param {number} y Координата списка по Y
+	 * @public
+	 */
+	getHTMLListByCoords(y) {
+		return document.querySelector(`.field__list[data-y="${y}"]`);
+	}
+
+	/**
 	 * Удаление определенного квадрата
 	 * @param {object} coords Объект координат
 	 * @param {string} nameActiveFigure Имя активной фигуры

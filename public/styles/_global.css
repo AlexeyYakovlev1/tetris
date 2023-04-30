@@ -9,7 +9,8 @@
 }
 
 body {
-	background-color: #627D8C;
+	background-image: linear-gradient(to bottom, #1C2137, #3D477C);
+	min-height: 100vh;
 }
 
 .container {

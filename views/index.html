@@ -10,15 +10,19 @@
 <body>
 	<div class="container">
 		<div class="field"></div>
-	
-		<button class="btn__field" id="btn__start">Start</button>
-		<button class="btn__field hidden" id="btn__pause">Pause</button>
 	</div>
 	
+	<div id="gameStartModal">
+		<div class="gameStart__content">
+			<h1 class="gameStart__content--title">Добро пожаловать!</h1>
+			<button class="btn__primary" id="btn__start">Начать</button>
+		</div>
+	</div>
+
 	<div id="gameOverModal" class="hidden">
 		<div class="gameOver__content">
-			<h1 class="gameOver__content--title">Game over</h1>
-			<button class="gameOver__content--restart">Try again</button>
+			<h1 class="gameOver__content--title">Игра окончена</h1>
+			<button class="gameOver__content--restart btn__primary">Попробовать снова</button>
 		</div>
 	</div>
 

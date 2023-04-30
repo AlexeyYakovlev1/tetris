@@ -70,7 +70,7 @@ class Field {
 		// Рисуем списки
 		for (let i = this.squares.length; i > 0; i--) {
 			this.$field.innerHTML += `
-				<ul class="field__list" data-y="${i}"></ul>
+				<ul class="field__list" data-y="${i}" data-fill="0"></ul>
 			`;
 		}
 
