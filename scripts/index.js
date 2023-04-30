@@ -7,19 +7,24 @@ const $gameOverContentRestart = document.querySelector(".gameOver__content--rest
 const $gameStartModal = document.querySelector("#gameStartModal");
 
 const field = new Field($field);
+
 field.render();
 
-const figures = new Figures(field.getEndOfField, field.finishGameOver);
+const figures = new Figures(
+	field.getEndOfField,
+	field.finishGameOver,
+	field.updateScores
+);
 
 figures.defineEndOfField();
 
 document.addEventListener("keydown", (event) => {
-	if (field.getGameStarted === true && field.getGameOver === false) figures.move(event.code);
+	if (field.getGameStarted === true && field.getGameOver === false) {
+		figures.move(event.code);
+	}
 });
 
-$gameOverContentRestart.addEventListener("click", () => {
-	window.location.reload();
-});
+$gameOverContentRestart.addEventListener("click", () => window.location.reload());
 
 $btnStart.addEventListener("click", () => {
 	$gameStartModal.classList.add("hidden");

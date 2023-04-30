@@ -1,0 +1,15 @@
+@import "./_global.css";
+
+.scores {
+	color: #fff;
+	margin-top: 20px;
+	font-family: var(--font-exo);
+}
+
+.scores__value {
+	display: inline-block;
+	margin-top: 5px;
+	background-image: linear-gradient(to top, #752807, #080100);
+	padding: 5px 10px;
+	border: 2px solid #CA8F3F;
+}

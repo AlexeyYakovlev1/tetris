@@ -1,0 +1,35 @@
+@import "./_global.css";
+
+#gameOverModal,
+#gameStartModal {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, .5);
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+}
+
+.gameOver__content,
+.gameStart__content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: #1F2B56;
+	color: #fff;
+	border: 4px solid #778DEE;
+	border-radius: 4px;
+	padding: 15px 25px;
+	display: flex;
+	flex-direction: column;
+	gap: 15px 0;
+}
+
+.gameOver__content--title,
+.gameStart__content--title {
+	font-family: var(--font-playfair);
+	text-transform: uppercase;
+}

@@ -21,3 +21,13 @@ body {
 .hidden {
 	display: none;
 }
+
+.btn__primary {
+	background-color: #FDFFFE;
+	color: #242E61;
+	cursor: pointer;
+	border: none;
+	border-radius: 2px;
+	padding: 10px 15px;
+	font-family: var(--font-playfair);
+}

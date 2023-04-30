@@ -6,10 +6,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Tetris</title>
 	<link rel="stylesheet" href="../public/styles/field.css">
+	<link rel="stylesheet" href="../public/styles/modals.css">
+	<link rel="stylesheet" href="../public/styles/scores.css">
 </head>
 <body>
 	<div class="container">
 		<div class="field"></div>
+		<div class="scores">
+			<span class="scores__value">0</span>
+		</div>
 	</div>
 	
 	<div id="gameStartModal">
@@ -22,6 +27,7 @@
 	<div id="gameOverModal" class="hidden">
 		<div class="gameOver__content">
 			<h1 class="gameOver__content--title">Игра окончена</h1>
+			<h2 class="gameOver__content--subtitle">Вы набрали 0 очков</h2>
 			<button class="gameOver__content--restart btn__primary">Попробовать снова</button>
 		</div>
 	</div>

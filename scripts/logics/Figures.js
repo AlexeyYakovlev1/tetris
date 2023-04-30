@@ -1,4 +1,5 @@
 import figures from "../data/figures.js";
+import valueScores from "../data/scores.js";
 import Utils from "./Utils.js";
 import Draw from "./Draw.js";
 
@@ -12,6 +13,7 @@ class Figures {
 	allowedCodesForControl = ["ArrowRight", "ArrowLeft", "ArrowDown"];
 	currentPositionActiveSquare = new Set();
 	renderNewFigure = false;
+	scores = 0;
 	endPositions = {
 		DOWN: "DOWN",
 		RIGHT: "RIGHT",
@@ -23,9 +25,10 @@ class Figures {
 		coordinatesOfAllActiveSquares: []
 	};
 
-	constructor(endOfField, gameOver) {
+	constructor(endOfField, gameOver, updateScores) {
 		this.endOfField = endOfField;
 		this.gameOver = gameOver;
+		this.updateScores = updateScores;
 	}
 
 	set setStopDropFigure(value) {
@@ -231,6 +234,9 @@ class Figures {
 		// Рисуем на начальной позиции
 		draw.init(currentFigure);
 
+		// Зачисляем очки
+		this.updateScores(valueScores.NEW_FIGURE);
+
 		// Назначаем
 		this.assignAnActiveFigure(currentFigure);
 
@@ -373,7 +379,6 @@ class Figures {
 			if (this._conditionForDefineFiguresRegardingActiveFigure($nextSquare)) {
 				flag = true;
 				this.renderNewFigure = true;
-
 				return;
 			}
 		});
@@ -438,6 +443,9 @@ class Figures {
 
 		// Если список полностью заполненный, то очищаем
 		if (fill == 10) {
+			// Зачисляем очки
+			this.updateScores(valueScores.REMOVE_LIST);
+
 			[...$list.children].forEach(($square) => $square.className = "field__square");
 			$list.dataset.fill = "0";
 		}
@@ -449,13 +457,11 @@ class Figures {
 	 * @public
 	 */
 	dropFigureAfterSeconds(time = 1) {
-		const refreshPosition = setInterval(() => {
+		this.refreshPosition = setInterval(() => {
 			if (this.stopDropFigure === true) {
-				clearInterval(refreshPosition);
+				clearInterval(this.refreshPosition);
 				return;
 			}
-
-			const { name } = this.activeFigureData.activeFigure;
 
 			// Если фигуры на крае поля (снизу) или столкнулась с другой фигурой
 			if (
@@ -468,11 +474,7 @@ class Figures {
 					const $list = utils.getHTMLListByCoords(coords.y);
 
 					// Обновляем значение "заполненность квадратами" (fill) у списка
-					let countFill = Number($list.dataset.fill);
-
-					countFill += 1;
-
-					$list.dataset.fill = countFill;
+					$list.dataset.fill = Number($list.dataset.fill) + 1;
 
 					this.checkingTheFillingOfTheListWithSquares($list);
 
@@ -480,10 +482,16 @@ class Figures {
 				});
 
 				this.resetToDefaultValue();
-				this.renderRandomFigure();
 				this.stopDropFigure = false;
+				this.renderRandomFigure();
+
 				return;
 			}
+
+			// Зачисляем очки
+			this.updateScores(valueScores.TIME_OVER);
+
+			const { name } = this.activeFigureData.activeFigure;
 
 			// Опускаем
 			if (this.activeFigureData.activeFigureHaveSides === true) {
