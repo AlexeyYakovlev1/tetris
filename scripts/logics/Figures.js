@@ -463,7 +463,9 @@ class Figures {
 				return;
 			}
 
-			// Если фигуры на крае поля (снизу) или столкнулась с другой фигурой
+			this.defineEndOfField();
+
+			// Если фигуры на крае поля или столкнулась с другой фигурой (снизу)
 			if (
 				this.currentPositionActiveSquare.has(this.endPositions.DOWN) ||
 				this.renderNewFigure === true
@@ -514,7 +516,6 @@ class Figures {
 				utils.addDefiniteSquare(coords, name);
 			});
 
-			this.defineEndOfField();
 			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN);
 		}, time * 300);
 	}
@@ -524,7 +525,9 @@ class Figures {
 	 * @public
 	 */
 	right() {
-		// Если при смещении вправо фигура находится на крае поля
+		this.defineEndOfField();
+
+		// Если при смещении вправо фигура находится на крае поля или рядом другие фигуры (спарво)
 		if (
 			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true
@@ -544,7 +547,9 @@ class Figures {
 	 * @public
 	 */
 	left() {
-		// Если при смещении влево фигура находится на крае поля
+		this.defineEndOfField();
+
+		// Если при смещении влево фигура находится на крае поля или рядом другие фигуры (слево)
 		if (
 			this.currentPositionActiveSquare.has(this.endPositions.LEFT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
