@@ -9,7 +9,8 @@
 }
 
 body {
-	background-color: #627D8C;
+	background-image: linear-gradient(to bottom, #1C2137, #3D477C);
+	min-height: 100vh;
 }
 
 .container {
@@ -19,4 +20,14 @@ body {
 
 .hidden {
 	display: none;
+}
+
+.btn__primary {
+	background-color: #FDFFFE;
+	color: #242E61;
+	cursor: pointer;
+	border: none;
+	border-radius: 2px;
+	padding: 10px 15px;
+	font-family: var(--font-playfair);
 }

@@ -7,6 +7,7 @@ class Field {
 	gamePaused = true;
 	gameOver = false;
 	endOfField = [];
+	scores = 0;
 
 	constructor($field) {
 		this.$field = $field;
@@ -33,12 +34,26 @@ class Field {
 	}
 
 	/**
+	 * Обновление рейтинга
+	 * @param {number} value Новое значение для поля очков
+	 * @public
+	 */
+	updateScores(value) {
+		this.scores = this.scores + Number(value);
+		document.querySelector(".scores__value").textContent = this.scores;
+	}
+
+	/**
 	 * Окончание игры
 	 * @public
 	 */
 	finishGameOver() {
 		this.gameOver = true;
+
 		document.querySelector("#gameOverModal").classList.remove("hidden");
+		document.querySelector(".gameOver__content--subtitle").textContent = `
+			Вы набрали ${this.scores} очков!
+		`;
 	}
 
 	/**
@@ -70,7 +85,7 @@ class Field {
 		// Рисуем списки
 		for (let i = this.squares.length; i > 0; i--) {
 			this.$field.innerHTML += `
-				<ul class="field__list" data-y="${i}"></ul>
+				<ul class="field__list" data-y="${i}" data-fill="0"></ul>
 			`;
 		}
 

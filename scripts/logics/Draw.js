@@ -20,12 +20,17 @@ class Draw {
 	 * @public
 	 */
 	drawTypeI(figure) {
-		const { yList, xSquare, fillUpTo: { y: fillUpToY } } = figure;
+		const { yList, xSquare, fillUpTo: { y: fillUpToY, x: fillUpToX } } = figure;
+		const id = utils.generateId();
 
-		utils.addDefiniteSquare({ x: xSquare, y: yList }, figure.name);
+		utils.addDefiniteSquare({ x: xSquare, y: yList }, figure.name, id);
 
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			utils.addDefiniteSquare({ x: xSquare, y: i }, figure.name);
+			utils.addDefiniteSquare({ x: xSquare, y: i }, figure.name, id);
+		}
+
+		for (let i = xSquare - 1; i >= xSquare - fillUpToX; i--) {
+			utils.addDefiniteSquare({ x: i, y: yList }, figure.name, id);
 		}
 	}
 
@@ -35,11 +40,12 @@ class Draw {
 	 * @param {number} yList Координата y
 	 * @param {number} fillUpToY На сколько нужно растянуть по вертикали
 	 * @param {string} figureName Имя фигуры
+	 * @param {string} id Идентификатор
 	 * @public
 	 */
-	drawStretchingY(xSquare, yList, fillUpToY, figureName) {
+	drawStretchingY(xSquare, yList, fillUpToY, figureName, id) {
 		for (let i = yList - 1; i >= yList - fillUpToY; i--) {
-			utils.addDefiniteSquare({ x: xSquare, y: i }, figureName);
+			utils.addDefiniteSquare({ x: xSquare, y: i }, figureName, id);
 		}
 	}
 
@@ -48,13 +54,14 @@ class Draw {
 	 * @param {object} side Объект стороны
 	 * @param {number} fillUpToX На сколько нужно растянуть по горизонтали
 	 * @param {string} figureName Имя фигуры
+	 * @param {string} id Идентификатор 
 	 * @public
 	 */
-	drawStretchingX(side, fillUpToX, figureName) {
+	drawStretchingX(side, fillUpToX, figureName, id) {
 		const { xSquare, yList } = side;
 
 		for (let i = xSquare; i <= xSquare + fillUpToX; i++) {
-			utils.addDefiniteSquare({ x: i, y: yList }, figureName);
+			utils.addDefiniteSquare({ x: i, y: yList }, figureName, id);
 		}
 	}
 
@@ -64,13 +71,15 @@ class Draw {
 	 * @public
 	 */
 	drawOtherFigures(figure) {
+		const id = utils.generateId();
+
 		figure.sides.forEach((side) => {
 			const { yList, xSquare, fillUpTo: { x: fillUpToX, y: fillUpToY } } = side;
 
-			utils.addDefiniteSquare({ x: xSquare, y: yList }, figure.name);
+			utils.addDefiniteSquare({ x: xSquare, y: yList }, figure.name, id);
 
-			if (fillUpToX !== 0) this.drawStretchingX(side, fillUpToX, figure.name);
-			if (fillUpToY !== 0) this.drawStretchingY(xSquare, yList, fillUpToY, figure.name);
+			if (fillUpToX !== 0) this.drawStretchingX(side, fillUpToX, figure.name, id);
+			if (fillUpToY !== 0) this.drawStretchingY(xSquare, yList, fillUpToY, figure.name, id);
 		});
 	}
 }

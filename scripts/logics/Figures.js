@@ -1,4 +1,5 @@
 import figures from "../data/figures.js";
+import valueScores from "../data/scores.js";
 import Utils from "./Utils.js";
 import Draw from "./Draw.js";
 
@@ -12,6 +13,7 @@ class Figures {
 	allowedCodesForControl = ["ArrowRight", "ArrowLeft", "ArrowDown"];
 	currentPositionActiveSquare = new Set();
 	renderNewFigure = false;
+	scores = 0;
 	endPositions = {
 		DOWN: "DOWN",
 		RIGHT: "RIGHT",
@@ -23,9 +25,10 @@ class Figures {
 		coordinatesOfAllActiveSquares: []
 	};
 
-	constructor(endOfField, gameOver) {
+	constructor(endOfField, gameOver, updateScores) {
 		this.endOfField = endOfField;
 		this.gameOver = gameOver;
+		this.updateScores = updateScores;
 	}
 
 	set setStopDropFigure(value) {
@@ -78,6 +81,16 @@ class Figures {
 				}
 			},
 			{
+				color: "#00E4FF",
+				name: "I-rotate-1",
+				yList: 20,
+				xSquare: 6,
+				fillUpTo: {
+					y: 0,
+					x: 3
+				}
+			},
+			{
 				color: "#F60000",
 				name: "S",
 				sides: [
@@ -102,6 +115,50 @@ class Figures {
 						xSquare: 5,
 						fillUpTo: {
 							y: 0,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#F60000",
+				name: "S-rotate-1",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					},
+					{
+						yList: 19,
+						xSquare: 5,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#F60000",
+				name: "S-rotate-2",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 5,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					},
+					{
+						yList: 19,
+						xSquare: 6,
+						fillUpTo: {
+							y: 1,
 							x: 0
 						}
 					}
@@ -211,6 +268,28 @@ class Figures {
 					}
 				]
 			},
+			{
+				color: "#9F0096",
+				name: "T-rotate-1",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 2,
+							x: 0
+						}
+					},
+					{
+						yList: 19,
+						xSquare: 5,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					}
+				]
+			}
 		];
 		this.currentPositionActiveSquare = new Set();
 		this.refreshPosition = setInterval(() => { });
@@ -230,6 +309,9 @@ class Figures {
 
 		// Рисуем на начальной позиции
 		draw.init(currentFigure);
+
+		// Зачисляем очки
+		this.updateScores(valueScores.NEW_FIGURE);
 
 		// Назначаем
 		this.assignAnActiveFigure(currentFigure);
@@ -428,20 +510,92 @@ class Figures {
 	}
 
 	/**
-	 * Каждую секунду опускаем активную фигуру
-	 * @param {number} sec Время, через которое будет опускаться активная фигура
+	 * Проверяет заполненность квадратами список (для последующего очищения)
+	 * @param {HTMLElement} $list HTML список квадратов
 	 * @public
 	 */
-	dropFigureAfterSeconds(sec = 1) {
-		const refreshPosition = setInterval(() => {
+	checkingTheFillingOfTheListWithSquares($list) {
+		const { fill } = $list.dataset;
+
+		// Если список полностью заполненный, то очищаем
+		if (fill == 10) {
+			// Зачисляем очки
+			this.updateScores(valueScores.REMOVE_LIST);
+
+			// Очищаем список от квадратов
+			[...$list.children].forEach(($square) => $square.className = "field__square");
+			$list.dataset.fill = "0";
+
+			// Опускаем верхние квадраты вниз
+			this._dropUpSquares($list);
+		}
+	}
+
+	/**
+	 * Опускаем верхние квадраты вниз
+	 * @param {HTMLElement} $list HTML список
+	 * @private
+	 */
+	_dropUpSquares($list) {
+		const $allSquaresOfFigure = document.querySelectorAll(".figure");
+		const $allUpSquares = [...$allSquaresOfFigure].filter(($square) => {
+			return Number($square.dataset.y) > Number($list.dataset.y);
+		});
+
+		const dataAllUpSquares = [];
+
+		// Получаем координаты всех квадратов фигур кроме активных
+		for (let i = 0; i < $allUpSquares.length; i++) {
+			const $square = $allUpSquares[i];
+
+			if ($square.classList.contains("active--figure")) continue;
+
+			const { x, y, id } = $square.dataset;
+
+			dataAllUpSquares.push({ name: utils.getFigureName({ x, y }), id, x, y });
+		}
+
+		// Удаляем старые квадраты
+		dataAllUpSquares.forEach((data) => {
+			const { x, y, name } = data;
+			utils.removeDefiniteSquare({ x, y }, name);
+			data.y -= 1;
+
+			// Удаляем из списока
+			const $findList = utils.getHTMLListByCoords(y);
+			$findList.dataset.fill = Number($findList.dataset.fill) - 1;
+		});
+
+		// Добавляем новые квадраты
+		dataAllUpSquares.forEach((data) => {
+			const { x, y, name, id } = data;
+
+			utils.addDefiniteSquare({ x, y }, name, id);
+			utils.getHTMLSquareByCoords({ x, y }).classList.remove("active--figure");
+
+			// Заполняем список
+			const $findList = utils.getHTMLListByCoords(y);
+			$findList.dataset.fill = Number($findList.dataset.fill) + 1;
+		});
+	}
+
+	/**
+	 * Каждую секунду опускаем активную фигуру
+	 * @param {number} time Время, через которое будет опускаться активная фигура
+	 * @public
+	 */
+	dropFigureAfterSeconds(time = 1) {
+		this.refreshPosition = setInterval(() => {
+			const figureId = utils.generateId();
+
 			if (this.stopDropFigure === true) {
-				clearInterval(refreshPosition);
+				clearInterval(this.refreshPosition);
 				return;
 			}
 
-			const { name } = this.activeFigureData.activeFigure;
+			this.defineEndOfField();
 
-			// Если фигуры на крае поля (снизу) или столкнулась с другой фигурой
+			// Если фигуры на крае поля или столкнулась с другой фигурой (снизу)
 			if (
 				this.currentPositionActiveSquare.has(this.endPositions.DOWN) ||
 				this.renderNewFigure === true
@@ -449,15 +603,26 @@ class Figures {
 				// Очищаем текущие квадраты от активной фигуры
 				this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
 					const $square = utils.getHTMLSquareByCoords(coords);
+					const $list = utils.getHTMLListByCoords(coords.y);
+
+					// Обновляем значение "заполненность квадратами" (fill) у списка
+					$list.dataset.fill = Number($list.dataset.fill) + 1;
 					$square.classList.remove("active--figure");
-					$square.removeAttribute("data-position");
+
+					this.checkingTheFillingOfTheListWithSquares($list);
 				});
 
 				this.resetToDefaultValue();
-				this.renderRandomFigure();
 				this.stopDropFigure = false;
+				this.renderRandomFigure();
+
 				return;
 			}
+
+			// Зачисляем очки
+			this.updateScores(valueScores.TIME_OVER);
+
+			const { name } = this.activeFigureData.activeFigure;
 
 			// Опускаем
 			if (this.activeFigureData.activeFigureHaveSides === true) {
@@ -467,18 +632,21 @@ class Figures {
 			}
 
 			// Удаляем квадрат с текущими координатами (старый)
-			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => utils.removeDefiniteSquare(coords, name));
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+				utils.removeDefiniteSquare(coords, name);
+			});
 
 			// Обновляем массив с координатами активных квадратов
 			this.activeFigureData.coordinatesOfAllActiveSquares = [];
 			this.setCoordsSquaresFromActiveFigure();
 
 			// Добавляем квадрат с обновленными координатами (новый)
-			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => utils.addDefiniteSquare(coords, name));
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+				utils.addDefiniteSquare(coords, name, figureId);
+			});
 
-			this.defineEndOfField();
 			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN);
-		}, sec * 200);
+		}, time * 300);
 	}
 
 	/**
@@ -486,15 +654,13 @@ class Figures {
 	 * @public
 	 */
 	right() {
-		// Если при смещении вправо фигура находится на крае поля
+		this.defineEndOfField();
+
+		// Если при смещении вправо фигура находится на крае поля или рядом другие фигуры (спарво)
 		if (
-			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) ||
+			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true
 		) {
-			console.log(
-				this.currentPositionActiveSquare.has(this.endPositions.RIGHT) === true,
-				this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true
-			);
 			return;
 		}
 
@@ -510,15 +676,13 @@ class Figures {
 	 * @public
 	 */
 	left() {
-		// Если при смещении влево фигура находится на крае поля
+		this.defineEndOfField();
+
+		// Если при смещении влево фигура находится на крае поля или рядом другие фигуры (слево)
 		if (
-			this.currentPositionActiveSquare.has(this.endPositions.LEFT) ||
+			this.currentPositionActiveSquare.has(this.endPositions.LEFT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
 		) {
-			console.log(
-				this.currentPositionActiveSquare.has(this.endPositions.LEFT) === true,
-				this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
-			);
 			return;
 		}
 

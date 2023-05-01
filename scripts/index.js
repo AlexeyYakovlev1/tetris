@@ -3,52 +3,34 @@ import Figures from "./logics/Figures.js";
 
 const $field = document.querySelector(".field");
 const $btnStart = document.querySelector("#btn__start");
-const $btnPause = document.querySelector("#btn__pause");
 const $gameOverContentRestart = document.querySelector(".gameOver__content--restart");
+const $gameStartModal = document.querySelector("#gameStartModal");
 
 const field = new Field($field);
+
 field.render();
 
-const figures = new Figures(field.getEndOfField, field.finishGameOver);
+const figures = new Figures(
+	field.getEndOfField,
+	field.finishGameOver,
+	field.updateScores
+);
 
 figures.defineEndOfField();
 
 document.addEventListener("keydown", (event) => {
-	if (field.getGameStarted === true && field.getGameOver === false) figures.move(event.code);
+	if (field.getGameStarted === true && field.getGameOver === false) {
+		figures.move(event.code);
+	}
 });
 
-$gameOverContentRestart.addEventListener("click", () => {
-	window.location.reload();
-});
+$gameOverContentRestart.addEventListener("click", () => window.location.reload());
 
 $btnStart.addEventListener("click", () => {
-	if ($btnStart.textContent === "Restart") {
-		window.location.reload(); // Рестарт нужно изменить
-	} else if ($btnStart.textContent === "Start") {
-		field.startPlay();
+	$gameStartModal.classList.add("hidden");
+	field.startPlay();
 
-		figures.renderRandomFigure();
-		figures.setStopDropFigure = false;
-		figures.dropFigureAfterSeconds();
-
-		$btnStart.textContent = "Restart";
-		$btnPause.classList.remove("hidden");
-	}
-});
-
-$btnPause.addEventListener("click", () => {
-	if ($btnPause.textContent === "Play") {
-		$btnPause.textContent = "Pause";
-
-		// Продолжаем играть после паузы
-		field.continuePlay();
-		figures.setStopDropFigure = false;
-		figures.dropFigureAfterSeconds();
-	} else if ($btnPause.textContent === "Pause") {
-		// Пауза
-		field.pause();
-		figures.setStopDropFigure = true;
-
-		$btnPause.textContent = "Play";
-	}
+	figures.renderRandomFigure();
+	figures.setStopDropFigure = false;
+	figures.dropFigureAfterSeconds();
 });
