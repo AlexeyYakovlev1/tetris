@@ -38,11 +38,11 @@
 	background-image: linear-gradient(to top, #FAFF00, #fff);
 }
 
-.figure__I {
+.figure__I, .figure__I-rotate-1 {
 	background-image: linear-gradient(to top, #00E4FF, #fff);
 }
 
-.figure__S {
+.figure__S, .figure__S-rotate-1, .figure__S-rotate-2 {
 	background-image: linear-gradient(to top, #F60000, #fff);
 }
 
@@ -58,7 +58,7 @@
 	background-image: linear-gradient(to top, #FF51BC, #fff);
 }
 
-.figure__T {
+.figure__T, .figure__T-rotate-1 {
 	background-image: linear-gradient(to top, #9F0096, #fff);
 }
 
