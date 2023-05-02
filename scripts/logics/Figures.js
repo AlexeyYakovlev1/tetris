@@ -655,20 +655,62 @@ class Figures {
 	 */
 	right() {
 		this.defineEndOfField();
+		this.stopDropFigure = true;
 
-		// Если при смещении вправо фигура находится на крае поля или рядом другие фигуры (спарво)
+		// Если при смещении вправо фигура находится на крае поля или рядом другие фигуры (справо)
 		if (
 			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true
 		) {
+			this.stopDropFigure = false;
 			return;
 		}
 
-		const { activeFigureHaveSides, activeFigure } = this.activeFigureData;
+		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
+
+		let countDownSquares = 0;
+
+		// Определяем нижний правый квадрат
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			// Находим нижний квадрат другой фигуры относительно активной
+			const downSquareCoords = {
+				y: Number(coords.y) - 1,
+				x: Number(coords.x) + 1
+			};
+			const $downSquare = utils.getHTMLSquareByCoords(downSquareCoords);
+
+			// Если квадрат есть
+			if (this._conditionForDefineFiguresRegardingActiveFigure($downSquare) === true) {
+				countDownSquares += 1;
+			}
+		});
+
+		// Удаляем старые квадраты
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.removeDefiniteSquare(coords, activeFigure.name);
+		});
 
 		// Меняем координату X для стороны
 		if (activeFigureHaveSides) activeFigure.sides.forEach((side) => side.xSquare += 1);
 		else activeFigure.xSquare += 1;
+
+		if (countDownSquares > 0) {
+			// Обновляем массив с координатами активных квадратов
+			this.activeFigureData.coordinatesOfAllActiveSquares = [];
+			this.setCoordsSquaresFromActiveFigure();
+
+			const id = utils.generateId();
+
+			// Добавляем новые квадраты
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+				utils.addDefiniteSquare(coords, activeFigure.name, id);
+				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
+			});
+
+			this.renderNewFigure = true;
+		}
+
+		this.stopDropFigure = false;
 	}
 
 	/**
@@ -677,20 +719,62 @@ class Figures {
 	 */
 	left() {
 		this.defineEndOfField();
+		this.stopDropFigure = true;
 
 		// Если при смещении влево фигура находится на крае поля или рядом другие фигуры (слево)
 		if (
 			this.currentPositionActiveSquare.has(this.endPositions.LEFT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
 		) {
+			this.stopDropFigure = false;
 			return;
 		}
 
-		const { activeFigureHaveSides, activeFigure } = this.activeFigureData;
+		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
+
+		let countDownSquares = 0;
+
+		// Определяем нижний левый квадрат
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			// Находим нижний квадрат другой фигуры относительно активной
+			const downSquareCoords = {
+				y: Number(coords.y) - 1,
+				x: Number(coords.x) - 1
+			};
+			const $downSquare = utils.getHTMLSquareByCoords(downSquareCoords);
+
+			// Если квадрат есть
+			if (this._conditionForDefineFiguresRegardingActiveFigure($downSquare) === true) {
+				countDownSquares += 1;
+			}
+		});
+
+		// Удаляем старые квадраты
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.removeDefiniteSquare(coords, activeFigure.name);
+		});
 
 		// Меняем координату X для стороны
 		if (activeFigureHaveSides) activeFigure.sides.forEach((side) => side.xSquare -= 1);
 		else activeFigure.xSquare -= 1;
+
+		if (countDownSquares > 0) {
+			// Обновляем массив с координатами активных квадратов
+			this.activeFigureData.coordinatesOfAllActiveSquares = [];
+			this.setCoordsSquaresFromActiveFigure();
+
+			const id = utils.generateId();
+
+			// Добавляем новые квадраты
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+				utils.addDefiniteSquare(coords, activeFigure.name, id);
+				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
+			});
+
+			this.renderNewFigure = true;
+		}
+
+		this.stopDropFigure = false;
 	}
 
 	/**
