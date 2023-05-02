@@ -36,6 +36,16 @@ const figures = [
 		}
 	},
 	{
+		color: "#00E4FF",
+		name: "I-rotate-1",
+		yList: 20,
+		xSquare: 6,
+		fillUpTo: {
+			y: 0,
+			x: 3
+		}
+	},
+	{
 		color: "#F60000",
 		name: "S",
 		sides: [
@@ -60,6 +70,50 @@ const figures = [
 				xSquare: 5,
 				fillUpTo: {
 					y: 0,
+					x: 0
+				}
+			}
+		]
+	},
+	{
+		color: "#F60000",
+		name: "S-rotate-1",
+		sides: [
+			{
+				yList: 20,
+				xSquare: 6,
+				fillUpTo: {
+					y: 1,
+					x: 0
+				}
+			},
+			{
+				yList: 19,
+				xSquare: 5,
+				fillUpTo: {
+					y: 1,
+					x: 0
+				}
+			}
+		]
+	},
+	{
+		color: "#F60000",
+		name: "S-rotate-2",
+		sides: [
+			{
+				yList: 20,
+				xSquare: 5,
+				fillUpTo: {
+					y: 1,
+					x: 0
+				}
+			},
+			{
+				yList: 19,
+				xSquare: 6,
+				fillUpTo: {
+					y: 1,
 					x: 0
 				}
 			}
@@ -169,6 +223,28 @@ const figures = [
 			}
 		]
 	},
+	{
+		color: "#9F0096",
+		name: "T-rotate-1",
+		sides: [
+			{
+				yList: 20,
+				xSquare: 6,
+				fillUpTo: {
+					y: 2,
+					x: 0
+				}
+			},
+			{
+				yList: 19,
+				xSquare: 5,
+				fillUpTo: {
+					y: 0,
+					x: 0
+				}
+			}
+		]
+	}
 ];
 
 export default figures;

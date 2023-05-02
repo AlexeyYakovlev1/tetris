@@ -81,6 +81,16 @@ class Figures {
 				}
 			},
 			{
+				color: "#00E4FF",
+				name: "I-rotate-1",
+				yList: 20,
+				xSquare: 6,
+				fillUpTo: {
+					y: 0,
+					x: 3
+				}
+			},
+			{
 				color: "#F60000",
 				name: "S",
 				sides: [
@@ -105,6 +115,50 @@ class Figures {
 						xSquare: 5,
 						fillUpTo: {
 							y: 0,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#F60000",
+				name: "S-rotate-1",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					},
+					{
+						yList: 19,
+						xSquare: 5,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					}
+				]
+			},
+			{
+				color: "#F60000",
+				name: "S-rotate-2",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 5,
+						fillUpTo: {
+							y: 1,
+							x: 0
+						}
+					},
+					{
+						yList: 19,
+						xSquare: 6,
+						fillUpTo: {
+							y: 1,
 							x: 0
 						}
 					}
@@ -214,6 +268,28 @@ class Figures {
 					}
 				]
 			},
+			{
+				color: "#9F0096",
+				name: "T-rotate-1",
+				sides: [
+					{
+						yList: 20,
+						xSquare: 6,
+						fillUpTo: {
+							y: 2,
+							x: 0
+						}
+					},
+					{
+						yList: 19,
+						xSquare: 5,
+						fillUpTo: {
+							y: 0,
+							x: 0
+						}
+					}
+				]
+			}
 		];
 		this.currentPositionActiveSquare = new Set();
 		this.refreshPosition = setInterval(() => { });
@@ -446,9 +522,61 @@ class Figures {
 			// Зачисляем очки
 			this.updateScores(valueScores.REMOVE_LIST);
 
+			// Очищаем список от квадратов
 			[...$list.children].forEach(($square) => $square.className = "field__square");
 			$list.dataset.fill = "0";
+
+			// Опускаем верхние квадраты вниз
+			this._dropUpSquares($list);
 		}
+	}
+
+	/**
+	 * Опускаем верхние квадраты вниз
+	 * @param {HTMLElement} $list HTML список
+	 * @private
+	 */
+	_dropUpSquares($list) {
+		const $allSquaresOfFigure = document.querySelectorAll(".figure");
+		const $allUpSquares = [...$allSquaresOfFigure].filter(($square) => {
+			return Number($square.dataset.y) > Number($list.dataset.y);
+		});
+
+		const dataAllUpSquares = [];
+
+		// Получаем координаты всех квадратов фигур кроме активных
+		for (let i = 0; i < $allUpSquares.length; i++) {
+			const $square = $allUpSquares[i];
+
+			if ($square.classList.contains("active--figure")) continue;
+
+			const { x, y, id } = $square.dataset;
+
+			dataAllUpSquares.push({ name: utils.getFigureName({ x, y }), id, x, y });
+		}
+
+		// Удаляем старые квадраты
+		dataAllUpSquares.forEach((data) => {
+			const { x, y, name } = data;
+			utils.removeDefiniteSquare({ x, y }, name);
+			data.y -= 1;
+
+			// Удаляем из списока
+			const $findList = utils.getHTMLListByCoords(y);
+			$findList.dataset.fill = Number($findList.dataset.fill) - 1;
+		});
+
+		// Добавляем новые квадраты
+		dataAllUpSquares.forEach((data) => {
+			const { x, y, name, id } = data;
+
+			utils.addDefiniteSquare({ x, y }, name, id);
+			utils.getHTMLSquareByCoords({ x, y }).classList.remove("active--figure");
+
+			// Заполняем список
+			const $findList = utils.getHTMLListByCoords(y);
+			$findList.dataset.fill = Number($findList.dataset.fill) + 1;
+		});
 	}
 
 	/**
@@ -458,6 +586,8 @@ class Figures {
 	 */
 	dropFigureAfterSeconds(time = 1) {
 		this.refreshPosition = setInterval(() => {
+			const figureId = utils.generateId();
+
 			if (this.stopDropFigure === true) {
 				clearInterval(this.refreshPosition);
 				return;
@@ -477,10 +607,9 @@ class Figures {
 
 					// Обновляем значение "заполненность квадратами" (fill) у списка
 					$list.dataset.fill = Number($list.dataset.fill) + 1;
+					$square.classList.remove("active--figure");
 
 					this.checkingTheFillingOfTheListWithSquares($list);
-
-					$square.classList.remove("active--figure");
 				});
 
 				this.resetToDefaultValue();
@@ -513,7 +642,7 @@ class Figures {
 
 			// Добавляем квадрат с обновленными координатами (новый)
 			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
-				utils.addDefiniteSquare(coords, name);
+				utils.addDefiniteSquare(coords, name, figureId);
 			});
 
 			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN);
@@ -526,20 +655,62 @@ class Figures {
 	 */
 	right() {
 		this.defineEndOfField();
+		this.stopDropFigure = true;
 
-		// Если при смещении вправо фигура находится на крае поля или рядом другие фигуры (спарво)
+		// Если при смещении вправо фигура находится на крае поля или рядом другие фигуры (справо)
 		if (
 			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true
 		) {
+			this.stopDropFigure = false;
 			return;
 		}
 
-		const { activeFigureHaveSides, activeFigure } = this.activeFigureData;
+		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
+
+		let countDownSquares = 0;
+
+		// Определяем нижний правый квадрат
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			// Находим нижний квадрат другой фигуры относительно активной
+			const downSquareCoords = {
+				y: Number(coords.y) - 1,
+				x: Number(coords.x) + 1
+			};
+			const $downSquare = utils.getHTMLSquareByCoords(downSquareCoords);
+
+			// Если квадрат есть
+			if (this._conditionForDefineFiguresRegardingActiveFigure($downSquare) === true) {
+				countDownSquares += 1;
+			}
+		});
+
+		// Удаляем старые квадраты
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.removeDefiniteSquare(coords, activeFigure.name);
+		});
 
 		// Меняем координату X для стороны
 		if (activeFigureHaveSides) activeFigure.sides.forEach((side) => side.xSquare += 1);
 		else activeFigure.xSquare += 1;
+
+		if (countDownSquares > 0) {
+			// Обновляем массив с координатами активных квадратов
+			this.activeFigureData.coordinatesOfAllActiveSquares = [];
+			this.setCoordsSquaresFromActiveFigure();
+
+			const id = utils.generateId();
+
+			// Добавляем новые квадраты
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+				utils.addDefiniteSquare(coords, activeFigure.name, id);
+				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
+			});
+
+			this.renderNewFigure = true;
+		}
+
+		this.stopDropFigure = false;
 	}
 
 	/**
@@ -548,20 +719,62 @@ class Figures {
 	 */
 	left() {
 		this.defineEndOfField();
+		this.stopDropFigure = true;
 
 		// Если при смещении влево фигура находится на крае поля или рядом другие фигуры (слево)
 		if (
 			this.currentPositionActiveSquare.has(this.endPositions.LEFT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
 		) {
+			this.stopDropFigure = false;
 			return;
 		}
 
-		const { activeFigureHaveSides, activeFigure } = this.activeFigureData;
+		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
+
+		let countDownSquares = 0;
+
+		// Определяем нижний левый квадрат
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			// Находим нижний квадрат другой фигуры относительно активной
+			const downSquareCoords = {
+				y: Number(coords.y) - 1,
+				x: Number(coords.x) - 1
+			};
+			const $downSquare = utils.getHTMLSquareByCoords(downSquareCoords);
+
+			// Если квадрат есть
+			if (this._conditionForDefineFiguresRegardingActiveFigure($downSquare) === true) {
+				countDownSquares += 1;
+			}
+		});
+
+		// Удаляем старые квадраты
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.removeDefiniteSquare(coords, activeFigure.name);
+		});
 
 		// Меняем координату X для стороны
 		if (activeFigureHaveSides) activeFigure.sides.forEach((side) => side.xSquare -= 1);
 		else activeFigure.xSquare -= 1;
+
+		if (countDownSquares > 0) {
+			// Обновляем массив с координатами активных квадратов
+			this.activeFigureData.coordinatesOfAllActiveSquares = [];
+			this.setCoordsSquaresFromActiveFigure();
+
+			const id = utils.generateId();
+
+			// Добавляем новые квадраты
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+				utils.addDefiniteSquare(coords, activeFigure.name, id);
+				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
+			});
+
+			this.renderNewFigure = true;
+		}
+
+		this.stopDropFigure = false;
 	}
 
 	/**
