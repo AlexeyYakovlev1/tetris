@@ -1,4 +1,5 @@
 import figures from "../data/figures.js";
+import figuresForDefault from "../data/figuresForDefault.js";
 import valueScores from "../data/scores.js";
 import Utils from "./Utils.js";
 import Draw from "./Draw.js";
@@ -10,7 +11,7 @@ class Figures {
 	list = figures;
 	refreshPosition = setInterval(() => { });
 	stopDropFigure = true;
-	allowedCodesForControl = ["ArrowRight", "ArrowLeft", "ArrowDown"];
+	allowedCodesForControl = ["ArrowRight", "ArrowLeft", "ArrowDown", "KeyR"];
 	currentPositionActiveSquare = new Set();
 	renderNewFigure = false;
 	scores = 0;
@@ -24,11 +25,13 @@ class Figures {
 		activeFigureHaveSides: false,
 		coordinatesOfAllActiveSquares: []
 	};
+	stopGame = false;
 
-	constructor(endOfField, gameOver, updateScores) {
+	constructor(endOfField, gameOver, updateScores, yMax) {
 		this.endOfField = endOfField;
 		this.gameOver = gameOver;
 		this.updateScores = updateScores;
+		this.yMax = yMax;
 	}
 
 	set setStopDropFigure(value) {
@@ -47,254 +50,12 @@ class Figures {
 		};
 
 		// Каким-то образом изменяется массив figures, поэтому обнуление будет выглядеть так (
-		this.list = [
-			{
-				color: "#FAFF00",
-				name: "O",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 5,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					},
-					{
-						yList: 20,
-						xSquare: 6,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					}
-				]
-			},
-			{
-				color: "#00E4FF",
-				name: "I",
-				yList: 20,
-				xSquare: 6,
-				fillUpTo: {
-					y: 3,
-					x: 0
-				}
-			},
-			{
-				color: "#00E4FF",
-				name: "I-rotate-1",
-				yList: 20,
-				xSquare: 6,
-				fillUpTo: {
-					y: 0,
-					x: 3
-				}
-			},
-			{
-				color: "#F60000",
-				name: "S",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 6,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					},
-					{
-						yList: 20,
-						xSquare: 7,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					},
-					{
-						yList: 19,
-						xSquare: 5,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					}
-				]
-			},
-			{
-				color: "#F60000",
-				name: "S-rotate-1",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 6,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					},
-					{
-						yList: 19,
-						xSquare: 5,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					}
-				]
-			},
-			{
-				color: "#F60000",
-				name: "S-rotate-2",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 5,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					},
-					{
-						yList: 19,
-						xSquare: 6,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					}
-				]
-			},
-			{
-				color: "#69B625",
-				name: "Z",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 6,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					},
-					{
-						yList: 20,
-						xSquare: 5,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					},
-					{
-						yList: 19,
-						xSquare: 7,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					}
-				]
-			},
-			{
-				color: "#FF8D00",
-				name: "L",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 6,
-						fillUpTo: {
-							y: 2,
-							x: 0
-						}
-					},
-					{
-						yList: 18,
-						xSquare: 5,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					}
-				]
-			},
-			{
-				color: "#FF51BC",
-				name: "J",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 6,
-						fillUpTo: {
-							y: 2,
-							x: 0
-						}
-					},
-					{
-						yList: 18,
-						xSquare: 7,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					}
-				]
-			},
-			{
-				color: "#9F0096",
-				name: "T",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 5,
-						fillUpTo: {
-							y: 1,
-							x: 0
-						}
-					},
-					{
-						yList: 20,
-						xSquare: 6,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					},
-					{
-						yList: 20,
-						xSquare: 4,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					}
-				]
-			},
-			{
-				color: "#9F0096",
-				name: "T-rotate-1",
-				sides: [
-					{
-						yList: 20,
-						xSquare: 6,
-						fillUpTo: {
-							y: 2,
-							x: 0
-						}
-					},
-					{
-						yList: 19,
-						xSquare: 5,
-						fillUpTo: {
-							y: 0,
-							x: 0
-						}
-					}
-				]
-			}
-		];
+		this.list = figuresForDefault;
 		this.currentPositionActiveSquare = new Set();
 		this.refreshPosition = setInterval(() => { });
 		this.stopDropFigure = true;
 		this.renderNewFigure = false;
+		this.stopGame = false;
 	}
 
 	/**
@@ -317,9 +78,10 @@ class Figures {
 		this.assignAnActiveFigure(currentFigure);
 
 		// Если при рендере новой фигуры снизу уже есть фигуры
-		if (this._checkIfFigureCanBeDropped(currentFigure) === false) {
+		if (this._checkIfFigureCanBeDropped() === false) {
 			this.resetToDefaultValue();
 			this.gameOver();
+			this.stopGame = true;
 			return;
 		}
 	}
@@ -366,26 +128,35 @@ class Figures {
 			return;
 		}
 
-		const { x: fillUpToX, y: fillUpToY } = fillUpTo;
 		const coords = [];
 
-		// Если сторона не расширяется
-		if (fillUpToY === 0 && fillUpToX === 0) coords.push({ x: xSquare, y: yList });
+		if (!fillUpTo) {
+			coords.push({ x: xSquare, y: yList });
+		} else {
+			const { x: fillUpToX, y: fillUpToY } = fillUpTo;
 
-		// Если сторона расширяется по Y
-		if (fillUpToY !== 0 && fillUpToX === 0) {
-			for (let i = yList; i >= yList - fillUpToY; i--) coords.push({ x: xSquare, y: i });
-		}
+			// Если сторона не расширяется
+			if (fillUpToY === 0 && fillUpToX === 0) coords.push({ x: xSquare, y: yList });
 
-		// Если сторона расширяется по X
-		if (fillUpToX !== 0 && fillUpToY === 0) {
-			for (let i = xSquare; i >= xSquare - fillUpToX; i--) coords.push({ x: i, y: yList });
-		}
+			// Если сторона расширяется по Y
+			if (fillUpToY !== 0 && fillUpToX === 0) {
+				for (let i = yList; i >= yList - fillUpToY; i--) coords.push({ x: xSquare, y: i });
+			}
 
-		// Если сторона расширяется по X и Y
-		if (fillUpToY !== 0 && fillUpToX !== 0) {
-			for (let i = xSquare; i >= xSquare - fillUpToX; i--) {
-				for (let j = yList; j >= yList - fillUpToY; j--) coords.push({ x: i, y: j });
+			// Если сторона расширяется по X
+			if (fillUpToX !== 0 && fillUpToY === 0) {
+				for (let i = xSquare; i <= xSquare + fillUpToX; i++) {
+					coords.push({ x: i, y: yList });
+					// console.log({ x: i, y: yList });
+				}
+			}
+			// debugger;
+
+			// Если сторона расширяется по X и Y
+			if (fillUpToY !== 0 && fillUpToX !== 0) {
+				for (let i = xSquare; i >= xSquare - fillUpToX; i--) {
+					for (let j = yList; j >= yList - fillUpToY; j--) coords.push({ x: i, y: j });
+				}
 			}
 		}
 
@@ -397,12 +168,21 @@ class Figures {
 	 * @public
 	 */
 	defineEndOfField() {
-		const activeSquaresInEndField = this.activeFigureData.coordinatesOfAllActiveSquares.filter((coordsActiveSquare) => {
+		const { coordinatesOfAllActiveSquares } = this.activeFigureData;
+
+		// Находим активные квадраты на концах поля
+		const activeSquaresInEndField = coordinatesOfAllActiveSquares.filter((coordsActiveSquare) => {
 			return this.endOfField.find((coordsEndSquare) => {
 				const { x, y } = coordsEndSquare;
 				return x === coordsActiveSquare.x && y === coordsActiveSquare.y;
 			});
 		});
+
+		// Если список пуст, то обновляем массив с позициями активных квадратов
+		if (activeSquaresInEndField.length === 0) {
+			this.currentPositionActiveSquare = new Set();
+			return;
+		}
 
 		// Забираем позиции из активных конечных квадратов
 		activeSquaresInEndField.forEach((coords) => {
@@ -423,6 +203,8 @@ class Figures {
 		const { coordinatesOfAllActiveSquares } = this.activeFigureData;
 		const $activeSquares = [];
 
+		console.log("COORDS FROM REGARDING ACTIVE FIGURE: ", coordinatesOfAllActiveSquares);
+
 		// Находим все активные квадраты
 		coordinatesOfAllActiveSquares.forEach((coords) => {
 			$activeSquares.push(utils.getHTMLSquareByCoords(coords));
@@ -441,7 +223,7 @@ class Figures {
 	/**
 	 * Определяет фигуры снизу относительно активной фигуры
 	 * @param {HTMLCollection} $activeSquares Активные HTML квадраты
-	 * @param {boolean} renderFigureReturn Для только что отрисованной фигуры если true, то при столкновении с фигурами метод будет возвращать true
+	 * @param {boolean} isCollidingWithOtherFigures Для только что отрисованной фигуры если true, то при столкновении с фигурами метод будет возвращать true
 	 * @private
 	 */
 	_identifyFiguresLocatedToDownOfActiveOne($activeSquares, isCollidingWithOtherFigures) {
@@ -624,17 +406,17 @@ class Figures {
 
 			const { name } = this.activeFigureData.activeFigure;
 
+			// Удаляем квадрат с текущими координатами (старый)
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+				utils.removeDefiniteSquare(coords, name);
+			});
+
 			// Опускаем
 			if (this.activeFigureData.activeFigureHaveSides === true) {
 				this.activeFigureData.activeFigure.sides.forEach((side) => side.yList -= 1);
 			} else {
 				this.activeFigureData.activeFigure.yList -= 1;
 			}
-
-			// Удаляем квадрат с текущими координатами (старый)
-			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
-				utils.removeDefiniteSquare(coords, name);
-			});
 
 			// Обновляем массив с координатами активных квадратов
 			this.activeFigureData.coordinatesOfAllActiveSquares = [];
@@ -645,21 +427,23 @@ class Figures {
 				utils.addDefiniteSquare(coords, name, figureId);
 			});
 
+			// Определяем фигуры относительно активной фигуры снизу
 			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN);
 		}, time * 300);
 	}
 
 	/**
 	 * Правая стрелка
-	 * @public
+	 * @private
 	 */
-	right() {
+	_right() {
 		this.defineEndOfField();
 		this.stopDropFigure = true;
 
 		// Если при смещении вправо фигура находится на крае поля или рядом другие фигуры (справо)
 		if (
-			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) === true ||
+			this.stopGame === true ||
+			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true
 		) {
 			this.stopDropFigure = false;
@@ -691,39 +475,55 @@ class Figures {
 		});
 
 		// Меняем координату X для стороны
-		if (activeFigureHaveSides) activeFigure.sides.forEach((side) => side.xSquare += 1);
-		else activeFigure.xSquare += 1;
+		if (activeFigureHaveSides) {
+			activeFigure.sides.forEach((side) => {
+				if (side.xSquare >= 10) return;
+				side.xSquare += 1;
+			});
+		} else {
+			if (activeFigure.xSquare >= 10) return;
+			activeFigure.xSquare += 1;
+		}
+
+		// Обновляем массив с координатами активных квадратов
+		this.activeFigureData.coordinatesOfAllActiveSquares = [];
+		this.setCoordsSquaresFromActiveFigure();
 
 		if (countDownSquares > 0) {
-			// Обновляем массив с координатами активных квадратов
-			this.activeFigureData.coordinatesOfAllActiveSquares = [];
-			this.setCoordsSquaresFromActiveFigure();
-
-			const id = utils.generateId();
+			this.stopDropFigure = false;
+			this.renderNewFigure = true;
 
 			// Добавляем новые квадраты
 			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
 				utils.addDefiniteSquare(coords, activeFigure.name, id);
 				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 			});
-
-			this.renderNewFigure = true;
+			return;
 		}
+
+		const id = utils.generateId();
+
+		// Добавляем новые квадраты
+		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.addDefiniteSquare(coords, activeFigure.name, id);
+			utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
+		});
 
 		this.stopDropFigure = false;
 	}
 
 	/**
 	 * Левая стрелка
-	 * @public
+	 * @private
 	 */
-	left() {
+	_left() {
 		this.defineEndOfField();
 		this.stopDropFigure = true;
 
 		// Если при смещении влево фигура находится на крае поля или рядом другие фигуры (слево)
 		if (
-			this.currentPositionActiveSquare.has(this.endPositions.LEFT) === true ||
+			this.stopGame === true ||
+			this.currentPositionActiveSquare.has(this.endPositions.LEFT) ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
 		) {
 			this.stopDropFigure = false;
@@ -755,47 +555,191 @@ class Figures {
 		});
 
 		// Меняем координату X для стороны
-		if (activeFigureHaveSides) activeFigure.sides.forEach((side) => side.xSquare -= 1);
-		else activeFigure.xSquare -= 1;
+		if (activeFigureHaveSides) {
+			activeFigure.sides.forEach((side) => {
+				if (side.xSquare <= 0) return;
+				side.xSquare -= 1;
+			});
+		} else {
+			if (activeFigure.xSquare <= 0) return;
+			activeFigure.xSquare -= 1;
+		}
+
+		// Обновляем массив с координатами активных квадратов
+		this.activeFigureData.coordinatesOfAllActiveSquares = [];
+		this.setCoordsSquaresFromActiveFigure();
 
 		if (countDownSquares > 0) {
-			// Обновляем массив с координатами активных квадратов
-			this.activeFigureData.coordinatesOfAllActiveSquares = [];
-			this.setCoordsSquaresFromActiveFigure();
-
-			const id = utils.generateId();
+			this.stopDropFigure = false;
+			this.renderNewFigure = true;
 
 			// Добавляем новые квадраты
 			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
 				utils.addDefiniteSquare(coords, activeFigure.name, id);
 				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 			});
-
-			this.renderNewFigure = true;
+			return;
 		}
+
+		const id = utils.generateId();
+
+		// Добавляем новые квадраты
+		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.addDefiniteSquare(coords, activeFigure.name, id);
+			utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
+		});
 
 		this.stopDropFigure = false;
 	}
 
 	/**
 	 * Нижняя стрелка
-	 * @public
+	 * @private
 	 */
-	down() {
-		console.log("down click");
+	_down() {
+		this.defineEndOfField();
+		this.stopDropFigure = true;
+
+		// Если при смещении вниз фигура находится на крае поля или рядом другие фигуры (снизу)
+		if (
+			this.stopGame === true ||
+			this.currentPositionActiveSquare.has(this.endPositions.DOWN) ||
+			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN) === true
+		) {
+			this.stopDropFigure = false;
+			return;
+		}
+
+		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
+		const figureId = utils.generateId();
+
+		// Удаляем старые квадраты
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.removeDefiniteSquare(coords, activeFigure.name);
+		});
+
+		// Меняем координату Y для стороны
+		if (activeFigureHaveSides) {
+			activeFigure.sides.forEach((side) => {
+				if (side.yList <= 0) return;
+				side.yList -= 1;
+			});
+		} else {
+			if (activeFigure.yList <= 0) return;
+			activeFigure.yList -= 1;
+		}
+
+		// Обновляем массив с координатами активных квадратов
+		this.activeFigureData.coordinatesOfAllActiveSquares = [];
+		this.setCoordsSquaresFromActiveFigure();
+
+		// Добавляем новые квадраты
+		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.addDefiniteSquare(coords, activeFigure.name, figureId);
+			utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
+		});
+
+		this.stopDropFigure = false;
 	}
 
 	/**
-	 * Распределение кликов
+	 * Переворачивание фигуры на клавишу R
+	 * @private
+	 */
+	_rotateFigure() {
+		this.defineEndOfField();
+		this.stopDropFigure = true;
+
+		const { activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
+		const [smbl] = activeFigure.name.split("-"); // Symbol фигуры
+		const figureId = utils.generateId();
+
+		// Находим максимальное количество переворотов для конкретной фигуры
+		let maxRotateCount = 0;
+		let count = Number(activeFigure.name.at(-1)) || 0;
+		let flag = false;
+
+		for (let i = 0; i < this.list.length; i++) {
+			const figure = this.list[i];
+
+			if (figure.name.split("-")[0] !== smbl) continue;
+
+			const rotateCount = Number(figure.name.at(-1)) || 0;
+
+			if (rotateCount > maxRotateCount) maxRotateCount = rotateCount;
+		}
+
+		// Если кол-во переворотов максимальное, то счетчик нужно понижать и наоборот
+		if (count + 1 > maxRotateCount) {
+			flag = true;
+		}
+
+		if (flag === true) count = 0;
+		else count++;
+
+		// Ищем фигуру, которой будем заменять активную
+		let rotateFigureName = `${smbl}-rotate-${count}`;
+
+		if (count === 0) rotateFigureName = smbl;
+
+		const rotateFigure = this.list.find((figure) => {
+			return figure.name === rotateFigureName;
+		});
+
+		// FIX
+		if (rotateFigure === undefined) {
+			console.log("rotateFigure is undefined!!!");
+			return;
+		}
+
+		// Удаляем старые квадраты
+		coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.removeDefiniteSquare(coords, activeFigure.name);
+		});
+
+		// Отрисовка новой фигуры на том же уровне координат 
+		const maxYFromActiveSquares = utils.getMaxNumber(coordinatesOfAllActiveSquares.map(({ y }) => y));
+		const yForSubtraction = this.yMax - maxYFromActiveSquares; // 3
+
+		// Назначаем новую фигуру
+		this.assignAnActiveFigure(rotateFigure);
+
+		const rotateFigureHaveSides = Object.keys(rotateFigure).includes("sides");
+
+		// Обновляем координату Y для каждой стороны или фигуры
+		if (rotateFigureHaveSides === true) {
+			rotateFigure.sides.forEach((side) => side.yList -= yForSubtraction); // 20 - 3 = 17
+		} else {
+			rotateFigure.yList -= yForSubtraction;
+		}
+
+		// Обновляем массив с координатами активных квадратов
+		this.activeFigureData.coordinatesOfAllActiveSquares = [];
+		this.setCoordsSquaresFromActiveFigure();
+
+		console.log("COORDS FROM ROTATE: ", this.activeFigureData.coordinatesOfAllActiveSquares);
+
+		// Добавляем квадрат с обновленными координатами (новый)
+		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+			utils.addDefiniteSquare(coords, rotateFigure.name, figureId);
+		});
+
+		this.stopDropFigure = false;
+		debugger;
+	}
+
+	/**
+	 * Распределение нажатий
 	 * @public
 	 */
 	move(code) {
 		if (this.allowedCodesForControl.includes(code) === false) return;
 
 		// Заменяю if-ом, потому что ругается ident в eslint
-		if (code === "ArrowRight") this.right();
-		else if (code === "ArrowLeft") this.left();
-		else if (code === "ArrowDown") this.down();
+		if (code === "ArrowRight") this._right();
+		else if (code === "ArrowLeft") this._left();
+		else if (code === "ArrowDown") this._down();
+		else if (code === "KeyR") this._rotateFigure();
 	}
 }
 

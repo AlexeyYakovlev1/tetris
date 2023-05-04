@@ -42,23 +42,23 @@
 	background-image: linear-gradient(to top, #00E4FF, #fff);
 }
 
-.figure__S, .figure__S-rotate-1, .figure__S-rotate-2 {
+.figure__S, .figure__S-rotate-1, .figure__S-rotate-2, .figure__S-rotate-3 {
 	background-image: linear-gradient(to top, #F60000, #fff);
 }
 
-.figure__Z {
+.figure__Z, .figure__Z-rotate-1, .figure__Z-rotate-2, .figure__Z-rotate-3 {
 	background-image: linear-gradient(to top, #69B625, #fff);
 }
 
-.figure__L {
+.figure__L, .figure__L-rotate-1, .figure__L-rotate-2, .figure__L-rotate-3, .figure__L-rotate-4 {
 	background-image: linear-gradient(to top, #FF8D00, #fff);
 }
 
-.figure__J {
+.figure__J, .figure__J-rotate-1, .figure__J-rotate-2, .figure__J-rotate-3, .figure__J-rotate-4 {
 	background-image: linear-gradient(to top, #FF51BC, #fff);
 }
 
-.figure__T, .figure__T-rotate-1 {
+.figure__T, .figure__T-rotate-1, .figure__T-rotate-2, .figure__T-rotate-3 {
 	background-image: linear-gradient(to top, #9F0096, #fff);
 }
 

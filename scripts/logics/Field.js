@@ -8,9 +8,14 @@ class Field {
 	gameOver = false;
 	endOfField = [];
 	scores = 0;
+	yMax = 20;
 
 	constructor($field) {
 		this.$field = $field;
+	}
+
+	get getYMax() {
+		return this.yMax;
 	}
 
 	get getGameStarted() {
@@ -33,13 +38,18 @@ class Field {
 		return this.gameOver;
 	}
 
+	set setGameOver(value) {
+		this.gameOver = value;
+	}
+
 	/**
 	 * Обновление рейтинга
 	 * @param {number} value Новое значение для поля очков
+	 * @param {clear} boolean Нужно ли очистить очки 
 	 * @public
 	 */
-	updateScores(value) {
-		this.scores = this.scores + Number(value);
+	updateScores(value, clear = false) {
+		this.scores = clear === false ? this.scores + Number(value) : value;
 		document.querySelector(".scores__value").textContent = this.scores;
 	}
 
@@ -54,6 +64,8 @@ class Field {
 		document.querySelector(".gameOver__content--subtitle").textContent = `
 			Вы набрали ${this.scores} очков!
 		`;
+
+		this.updateScores(0, true);
 	}
 
 	/**
@@ -62,7 +74,7 @@ class Field {
 	 * */
 	fillAndDrawSquares() {
 		// Заполняем
-		for (let y = 20; y >= 1; y--) {
+		for (let y = this.yMax; y >= 1; y--) {
 			const list = [];
 
 			for (let x = 1; x <= 10; x++) {

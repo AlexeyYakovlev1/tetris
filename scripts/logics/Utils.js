@@ -40,11 +40,15 @@ class Utils {
 	 * @public
 	 */
 	addDefiniteSquare(coords, nameActiveFigure, id = "") {
-		const cssClass = `figure__${nameActiveFigure}`;
-		const $square = this.getHTMLSquareByCoords(coords);
+		try {
+			const cssClass = `figure__${nameActiveFigure}`;
+			const $square = this.getHTMLSquareByCoords(coords);
 
-		$square.classList.add(cssClass, "figure", "active--figure");
-		$square.dataset.id = id;
+			$square.classList.add(cssClass, "figure", "active--figure");
+			$square.dataset.id = id;
+		} catch (error) {
+			console.log(coords, error);
+		}
 	}
 
 	/**
@@ -69,6 +73,40 @@ class Utils {
 		});
 
 		return result;
+	}
+
+	/**
+	 * Возвращает максимальное число
+	 * @param {array} list Массив чисел
+	 * @public
+	 */
+	getMaxNumber(list) {
+		let max = list[0];
+
+		for (let i = 0; i < list.length; i++) {
+			const n = list[i];
+
+			if (n > max) max = n;
+		}
+
+		return max;
+	}
+
+	/**
+	 * Возвращает минимальное число
+	 * @param {array} list Массив чисел
+	 * @public
+	 */
+	getMinNumber(list) {
+		let min = list[0];
+
+		for (let i = 0; i < list.length; i++) {
+			const n = list[i];
+
+			if (n < min) min = n;
+		}
+
+		return min;
 	}
 }
 

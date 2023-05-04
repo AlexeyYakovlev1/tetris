@@ -11,7 +11,7 @@ class Draw {
 	init(figure) {
 		// Проверка типа фигуры
 		if (!Object.keys(figure).includes("sides")) this.drawTypeI(figure);
-		else if (figure.sides.length >= 2) this.drawOtherFigures(figure);
+		else if (figure.sides.length >= 1) this.drawOtherFigures(figure);
 	}
 
 	/**

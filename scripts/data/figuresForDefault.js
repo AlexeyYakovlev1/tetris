@@ -1,8 +1,8 @@
 /**
- * Начальные координаты для фигур и растягивания их сторон
+ * Начальные координаты для фигур и растягивания их сторон (массив для значения по умолчанию)
  */
 
-const figures = [
+const figuresForDefault = [
 	{
 		color: "#FAFF00",
 		name: "O",
@@ -567,4 +567,4 @@ const figures = [
 	}
 ];
 
-export default figures;
+export default figuresForDefault;
