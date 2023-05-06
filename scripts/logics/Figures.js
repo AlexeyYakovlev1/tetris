@@ -175,6 +175,11 @@ class Figures {
 			});
 		});
 
+		if (activeSquaresInEndField.length === 0) {
+			this.currentPositionActiveSquare = new Set();
+			return;
+		}
+
 		// Забираем позиции из активных конечных квадратов
 		activeSquaresInEndField.forEach((coords) => {
 			const $square = utils.getHTMLSquareByCoords(coords);
@@ -225,6 +230,7 @@ class Figures {
 			// Если следующий квадрат будет содержаться в определенной фигуре
 			if (this._conditionForDefineFiguresRegardingActiveFigure($nextSquare) === true) {
 				flag = true;
+				console.log("HERE");
 				this.renderNewFigure = true;
 				return;
 			}
@@ -314,6 +320,7 @@ class Figures {
 		});
 
 		const yUpSquares = new Set();
+		const yCurrentSquares = new Set();
 		const dataAllUpSquares = [];
 
 		// Получаем координаты всех квадратов фигур
@@ -340,11 +347,14 @@ class Figures {
 			utils.getHTMLSquareByCoords({ x, y }).classList.remove("active--figure");
 
 			// Заполняем список
-			const $findList = utils.getHTMLListByCoords(y - 1);
+			yCurrentSquares.add(y);
+		});
 
-			if ($findList === null) return;
+		yCurrentSquares.forEach((y) => {
+			const $findList = utils.getHTMLListByCoords(y);
+			const lengthSquares = [...$findList.children].filter(($square) => $square.classList.contains("figure")).length;
 
-			$findList.dataset.fill = Number($findList.dataset.fill) + 1;
+			$findList.dataset.fill = lengthSquares;
 		});
 
 		// Обновляем "заполненность" квадратами у списка
@@ -401,17 +411,17 @@ class Figures {
 
 			const { name } = this.activeFigureData.activeFigure;
 
+			// Удаляем квадрат с текущими координатами (старый)
+			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
+				utils.removeDefiniteSquare(coords, name);
+			});
+
 			// Опускаем
 			if (this.activeFigureData.activeFigureHaveSides === true) {
 				this.activeFigureData.activeFigure.sides.forEach((side) => side.yList -= 1);
 			} else {
 				this.activeFigureData.activeFigure.yList -= 1;
 			}
-
-			// Удаляем квадрат с текущими координатами (старый)
-			this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
-				utils.removeDefiniteSquare(coords, name);
-			});
 
 			// Обновляем массив с координатами активных квадратов
 			this.activeFigureData.coordinatesOfAllActiveSquares = [];
@@ -424,7 +434,7 @@ class Figures {
 
 			// Определяем фигуры относительно активной фигуры снизу
 			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN);
-		}, time * 100);
+		}, time * 500);
 	}
 
 	/**
@@ -432,8 +442,6 @@ class Figures {
 	 * @private
 	 */
 	_right() {
-		this.defineEndOfField();
-
 		// Если при смещении вправо фигура находится на крае поля или рядом другие фигуры (справо)
 		if (
 			this.stopGame === true ||
@@ -442,6 +450,8 @@ class Figures {
 		) {
 			return;
 		}
+
+		this.defineEndOfField();
 
 		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
 
@@ -484,6 +494,9 @@ class Figures {
 
 		// Если снизу справо есть квадрат другой фигуры
 		if (countDownSquares > 0) {
+			this.stopDropFigure = false;
+			this.renderNewFigure = true;
+
 			const figureId = utils.generateId();
 
 			// Добавляем новые квадраты
@@ -491,9 +504,6 @@ class Figures {
 				utils.addDefiniteSquare(coords, activeFigure.name, figureId);
 				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 			});
-
-			this.stopDropFigure = false;
-			this.renderNewFigure = true;
 
 			return;
 		}
@@ -512,8 +522,6 @@ class Figures {
 	 * @private
 	 */
 	_left() {
-		this.defineEndOfField();
-
 		// Если при смещении влево фигура находится на крае поля или рядом другие фигуры (слево)
 		if (
 			this.stopGame === true ||
@@ -522,6 +530,8 @@ class Figures {
 		) {
 			return;
 		}
+
+		this.defineEndOfField();
 
 		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
 
@@ -571,7 +581,7 @@ class Figures {
 				utils.addDefiniteSquare(coords, activeFigure.name, figureId);
 				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 			});
-
+			console.log("HERE");
 			this.stopDropFigure = false;
 			this.renderNewFigure = true;
 
@@ -642,10 +652,26 @@ class Figures {
 	 * @private
 	 */
 	_rotateFigure() {
+		if (
+			this.stopGame === true ||
+			this.currentPositionActiveSquare.has(this.endPositions.DOWN) ||
+			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) ||
+			this.currentPositionActiveSquare.has(this.endPositions.LEFT) ||
+			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN) === true ||
+			this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true ||
+			this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
+		) {
+			return;
+		}
+
 		this.defineEndOfField();
-		this.stopDropFigure = true;
 
 		const { activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
+
+		if (activeFigure.name === "O") {
+			return;
+		}
+
 		const [smbl] = activeFigure.name.split("-"); // Symbol фигуры
 		const figureId = utils.generateId();
 
@@ -664,7 +690,7 @@ class Figures {
 			if (rotateCount > maxRotateCount) maxRotateCount = rotateCount;
 		}
 
-		// Если кол-во переворотов максимальное, то счетчик нужно понижать и наоборот
+		// Если кол-во переворотов максимальное, то счетчик нужно обнулять
 		if (count + 1 > maxRotateCount) {
 			flag = true;
 		}
@@ -681,9 +707,7 @@ class Figures {
 			return figure.name === rotateFigureName;
 		});
 
-		// FIX
 		if (rotateFigure === undefined) {
-			console.log("rotateFigure is undefined!!!");
 			return;
 		}
 
@@ -694,7 +718,7 @@ class Figures {
 
 		// Отрисовка новой фигуры на том же уровне координат 
 		const maxYFromActiveSquares = utils.getMaxNumber(coordinatesOfAllActiveSquares.map(({ y }) => y));
-		const yForSubtraction = this.yMax - maxYFromActiveSquares; // 3
+		const yForSubtraction = this.yMax - maxYFromActiveSquares;
 
 		// Назначаем новую фигуру
 		this.assignAnActiveFigure(rotateFigure);
@@ -703,7 +727,7 @@ class Figures {
 
 		// Обновляем координату Y для каждой стороны или фигуры
 		if (rotateFigureHaveSides === true) {
-			rotateFigure.sides.forEach((side) => side.yList -= yForSubtraction); // 20 - 3 = 17
+			rotateFigure.sides.forEach((side) => side.yList -= yForSubtraction);
 		} else {
 			rotateFigure.yList -= yForSubtraction;
 		}
@@ -712,15 +736,11 @@ class Figures {
 		this.activeFigureData.coordinatesOfAllActiveSquares = [];
 		this.setCoordsSquaresFromActiveFigure();
 
-		console.log("COORDS FROM ROTATE: ", this.activeFigureData.coordinatesOfAllActiveSquares);
-
 		// Добавляем квадрат с обновленными координатами (новый)
 		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
 			utils.addDefiniteSquare(coords, rotateFigure.name, figureId);
+			utils.getHTMLSquareByCoords(coords).classList.add("figure--active");
 		});
-
-		this.stopDropFigure = false;
-		debugger;
 	}
 
 	/**
