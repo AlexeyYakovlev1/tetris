@@ -1,7 +1,4 @@
-import figures from "../data/figures.js";
-
 class Field {
-	list = figures;
 	squares = [];
 	gameStarted = false;
 	gamePaused = true;

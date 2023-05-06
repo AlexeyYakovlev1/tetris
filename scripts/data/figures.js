@@ -2,7 +2,7 @@
  * Начальные координаты для фигур и растягивания их сторон
  */
 
-const figures = [
+export default [
 	{
 		color: "#FAFF00",
 		name: "O",
@@ -566,5 +566,3 @@ const figures = [
 		]
 	}
 ];
-
-export default figures;
