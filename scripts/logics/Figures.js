@@ -229,8 +229,11 @@ class Figures {
 
 			// Если следующий квадрат будет содержаться в определенной фигуре
 			if (this._conditionForDefineFiguresRegardingActiveFigure($nextSquare) === true) {
+				console.log($nextSquare);
+				debugger;
+
 				flag = true;
-				console.log("HERE");
+
 				this.renderNewFigure = true;
 				return;
 			}
@@ -494,9 +497,6 @@ class Figures {
 
 		// Если снизу справо есть квадрат другой фигуры
 		if (countDownSquares > 0) {
-			this.stopDropFigure = false;
-			this.renderNewFigure = true;
-
 			const figureId = utils.generateId();
 
 			// Добавляем новые квадраты
@@ -504,6 +504,9 @@ class Figures {
 				utils.addDefiniteSquare(coords, activeFigure.name, figureId);
 				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 			});
+
+			this.stopDropFigure = false;
+			this.renderNewFigure = true;
 
 			return;
 		}
@@ -513,7 +516,6 @@ class Figures {
 		// Добавляем новые квадраты
 		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
 			utils.addDefiniteSquare(coords, activeFigure.name, id);
-			utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 		});
 	}
 
@@ -581,7 +583,7 @@ class Figures {
 				utils.addDefiniteSquare(coords, activeFigure.name, figureId);
 				utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 			});
-			console.log("HERE");
+
 			this.stopDropFigure = false;
 			this.renderNewFigure = true;
 
@@ -593,7 +595,6 @@ class Figures {
 		// Добавляем новые квадраты
 		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
 			utils.addDefiniteSquare(coords, activeFigure.name, id);
-			utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 		});
 	}
 
@@ -641,7 +642,6 @@ class Figures {
 		// Добавляем новые квадраты
 		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
 			utils.addDefiniteSquare(coords, activeFigure.name, figureId);
-			utils.getHTMLSquareByCoords(coords).classList.remove("active--figure");
 		});
 
 		this.stopDropFigure = false;
@@ -664,6 +664,8 @@ class Figures {
 			return;
 		}
 
+		console.log("==================");
+		console.log("ROTATE CLICK");
 		this.defineEndOfField();
 
 		const { activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
@@ -739,7 +741,7 @@ class Figures {
 		// Добавляем квадрат с обновленными координатами (новый)
 		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {
 			utils.addDefiniteSquare(coords, rotateFigure.name, figureId);
-			utils.getHTMLSquareByCoords(coords).classList.add("figure--active");
+			utils.getHTMLSquareByCoords(coords).classList.add("active--figure");
 		});
 	}
 
