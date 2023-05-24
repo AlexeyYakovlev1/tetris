@@ -25,6 +25,7 @@ class Figures {
 		coordinatesOfAllActiveSquares: []
 	};
 	stopGame = false;
+	xCountForActiveFigure = 0;
 
 	constructor(endOfField, gameOver, updateScores, maxCoords) {
 		this.endOfField = endOfField;
@@ -48,13 +49,13 @@ class Figures {
 			coordinatesOfAllActiveSquares: []
 		};
 
-		// Deep copy
-		this.list = JSON.parse(JSON.stringify(figures));
+		this.list = JSON.parse(JSON.stringify(figures)); // Deep copy
 		this.currentPositionActiveSquare = new Set();
 		this.refreshPosition = setInterval(() => { });
 		this.stopDropFigure = true;
 		this.renderNewFigure = false;
 		this.stopGame = false;
+		this.xCountForActiveFigure = 0;
 	}
 
 	/**
@@ -453,6 +454,8 @@ class Figures {
 
 		this.defineEndOfField();
 
+		this.xCountForActiveFigure += 1;
+
 		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
 
 		let countDownSquares = 0;
@@ -531,6 +534,8 @@ class Figures {
 		}
 
 		this.defineEndOfField();
+
+		this.xCountForActiveFigure -= 1;
 
 		const { activeFigureHaveSides, activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
 
@@ -717,17 +722,20 @@ class Figures {
 		const yForSubtraction = this.maxCoords.y - maxYFromActiveSquares;
 		const rotateFigureHaveSides = Object.keys(rotateFigure).includes("sides");
 
-		// Обновляем координату Y для каждой стороны или фигуры
+		// Обновляем координаты для каждой стороны или фигуры
 		if (rotateFigureHaveSides && this.activeFigureData.activeFigureHaveSides) {
 			rotateFigure.sides.forEach((side) => {
 				side.yList -= yForSubtraction;
+				side.xSquare += this.xCountForActiveFigure;
 			});
 		} else if (rotateFigureHaveSides && !this.activeFigureData.activeFigureHaveSides) {
 			rotateFigure.sides.forEach((side) => {
 				side.yList -= yForSubtraction;
+				side.xSquare += this.xCountForActiveFigure;
 			});
 		} else {
 			rotateFigure.yList -= yForSubtraction;
+			rotateFigure.xSquare += this.xCountForActiveFigure;
 		}
 
 		// Назначаем новую фигуру
