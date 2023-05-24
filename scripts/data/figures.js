@@ -87,7 +87,7 @@ export default [
 				yList: 20,
 				xSquare: 6,
 				fillUpTo: {
-					y: 1,
+					y: 0,
 					x: 0
 				}
 			},
@@ -95,7 +95,15 @@ export default [
 				yList: 19,
 				xSquare: 5,
 				fillUpTo: {
-					y: 1,
+					y: 0,
+					x: 1
+				}
+			},
+			{
+				yList: 18,
+				xSquare: 5,
+				fillUpTo: {
+					y: 0,
 					x: 0
 				}
 			}
@@ -109,15 +117,23 @@ export default [
 				yList: 20,
 				xSquare: 5,
 				fillUpTo: {
-					y: 1,
+					y: 0,
 					x: 0
 				}
 			},
 			{
 				yList: 19,
+				xSquare: 5,
+				fillUpTo: {
+					y: 0,
+					x: 1
+				}
+			},
+			{
+				yList: 18,
 				xSquare: 6,
 				fillUpTo: {
-					y: 1,
+					y: 0,
 					x: 0
 				}
 			}
@@ -129,10 +145,18 @@ export default [
 		sides: [
 			{
 				yList: 20,
-				xSquare: 6,
+				xSquare: 5,
 				fillUpTo: {
 					y: 0,
-					x: 1
+					x: 0
+				}
+			},
+			{
+				yList: 20,
+				xSquare: 6,
+				fillUpTo: {
+					y: 1,
+					x: 0
 				}
 			},
 			{
@@ -140,7 +164,7 @@ export default [
 				xSquare: 7,
 				fillUpTo: {
 					y: 0,
-					x: 1
+					x: 0
 				}
 			}
 		]
@@ -183,7 +207,7 @@ export default [
 				yList: 20,
 				xSquare: 6,
 				fillUpTo: {
-					y: 1,
+					y: 0,
 					x: 0
 				}
 			},
@@ -191,7 +215,15 @@ export default [
 				yList: 19,
 				xSquare: 5,
 				fillUpTo: {
-					y: 1,
+					y: 0,
+					x: 1
+				}
+			},
+			{
+				yList: 18,
+				xSquare: 5,
+				fillUpTo: {
+					y: 0,
 					x: 0
 				}
 			}
@@ -205,15 +237,23 @@ export default [
 				yList: 20,
 				xSquare: 6,
 				fillUpTo: {
-					y: 1,
+					y: 0,
 					x: 0
 				}
 			},
 			{
 				yList: 19,
+				xSquare: 6,
+				fillUpTo: {
+					y: 0,
+					x: 1
+				}
+			},
+			{
+				yList: 18,
 				xSquare: 7,
 				fillUpTo: {
-					y: 1,
+					y: 0,
 					x: 0
 				}
 			}
@@ -228,15 +268,23 @@ export default [
 				xSquare: 6,
 				fillUpTo: {
 					y: 0,
-					x: 1
+					x: 0
+				}
+			},
+			{
+				yList: 20,
+				xSquare: 5,
+				fillUpTo: {
+					y: 1,
+					x: 0
 				}
 			},
 			{
 				yList: 19,
-				xSquare: 5,
+				xSquare: 4,
 				fillUpTo: {
 					y: 0,
-					x: 1
+					x: 0
 				}
 			}
 		]
@@ -499,13 +547,21 @@ export default [
 				yList: 20,
 				xSquare: 6,
 				fillUpTo: {
-					y: 2,
+					y: 0,
 					x: 0
 				}
 			},
 			{
 				yList: 19,
 				xSquare: 5,
+				fillUpTo: {
+					y: 0,
+					x: 1
+				}
+			},
+			{
+				yList: 18,
+				xSquare: 6,
 				fillUpTo: {
 					y: 0,
 					x: 0
@@ -551,13 +607,21 @@ export default [
 				yList: 20,
 				xSquare: 6,
 				fillUpTo: {
-					y: 2,
+					y: 0,
 					x: 0
 				}
 			},
 			{
 				yList: 19,
-				xSquare: 7,
+				xSquare: 6,
+				fillUpTo: {
+					y: 0,
+					x: 1
+				}
+			},
+			{
+				yList: 18,
+				xSquare: 6,
 				fillUpTo: {
 					y: 0,
 					x: 0

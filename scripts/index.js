@@ -11,18 +11,26 @@ const field = new Field($field);
 
 field.render();
 
+const maxCoords = {
+	y: field.getYMax,
+	x: field.getXMax
+};
+
 const figures = new Figures(
 	field.getEndOfField,
 	field.finishGameOver,
 	field.updateScores,
-	field.getYMax
+	maxCoords
 );
 
 figures.defineEndOfField();
 
 document.addEventListener("keydown", (event) => {
-	if (field.getGameStarted === true && field.getGameOver === false) {
-		figures.move(event.code);
+	if (
+		field.getGameStarted === true &&
+		field.getGameOver === false
+	) {
+		figures.move(event.code)
 	}
 });
 

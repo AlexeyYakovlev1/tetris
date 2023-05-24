@@ -26,11 +26,11 @@ class Figures {
 	};
 	stopGame = false;
 
-	constructor(endOfField, gameOver, updateScores, yMax) {
+	constructor(endOfField, gameOver, updateScores, maxCoords) {
 		this.endOfField = endOfField;
 		this.gameOver = gameOver;
 		this.updateScores = updateScores;
-		this.yMax = yMax;
+		this.maxCoords = maxCoords;
 	}
 
 	set setStopDropFigure(value) {
@@ -229,9 +229,6 @@ class Figures {
 
 			// Если следующий квадрат будет содержаться в определенной фигуре
 			if (this._conditionForDefineFiguresRegardingActiveFigure($nextSquare) === true) {
-				console.log($nextSquare);
-				debugger;
-
 				flag = true;
 
 				this.renderNewFigure = true;
@@ -562,11 +559,11 @@ class Figures {
 		// Меняем координату X для стороны
 		if (activeFigureHaveSides) {
 			activeFigure.sides.forEach((side) => {
-				if (side.xSquare <= 0) return;
+				if (side.xSquare <= 1) return;
 				side.xSquare -= 1;
 			});
 		} else {
-			if (activeFigure.xSquare <= 0) return;
+			if (activeFigure.xSquare <= 1) return;
 			activeFigure.xSquare -= 1;
 		}
 
@@ -654,9 +651,11 @@ class Figures {
 	_rotateFigure() {
 		if (
 			this.stopGame === true ||
+
 			this.currentPositionActiveSquare.has(this.endPositions.DOWN) ||
 			this.currentPositionActiveSquare.has(this.endPositions.RIGHT) ||
 			this.currentPositionActiveSquare.has(this.endPositions.LEFT) ||
+
 			this.defineFiguresRegardingActiveFigure(this.endPositions.DOWN) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.RIGHT) === true ||
 			this.defineFiguresRegardingActiveFigure(this.endPositions.LEFT) === true
@@ -664,8 +663,6 @@ class Figures {
 			return;
 		}
 
-		console.log("==================");
-		console.log("ROTATE CLICK");
 		this.defineEndOfField();
 
 		const { activeFigure, coordinatesOfAllActiveSquares } = this.activeFigureData;
@@ -674,10 +671,10 @@ class Figures {
 			return;
 		}
 
-		const [smbl] = activeFigure.name.split("-"); // Symbol фигуры
+		const [smbl] = activeFigure.name.split("-"); // Символ фигуры
 		const figureId = utils.generateId();
 
-		// Находим максимальное количество переворотов для конкретной фигуры
+		// Находим максимальное количество переворотов для активной фигуры
 		let maxRotateCount = 0;
 		let count = Number(activeFigure.name.at(-1)) || 0;
 		let flag = false;
@@ -705,38 +702,56 @@ class Figures {
 
 		if (count === 0) rotateFigureName = smbl;
 
-		const rotateFigure = this.list.find((figure) => {
-			return figure.name === rotateFigureName;
-		});
+		const rotateFigure = this.list.find((figure) => figure.name === rotateFigureName);
 
 		if (rotateFigure === undefined) {
 			return;
+		}
+
+		// Обновление координат для старой активной фигуры
+		const idxOldFigure = this.list.findIndex((figure) => figure.name === activeFigure.name);
+		this.list[idxOldFigure] = JSON.parse(JSON.stringify(figures[idxOldFigure]));
+
+		// Отрисовка новой фигуры на том же уровне координат 
+		const maxYFromActiveSquares = utils.getMaxNumber(coordinatesOfAllActiveSquares.map(({ y }) => y));
+		const yForSubtraction = this.maxCoords.y - maxYFromActiveSquares;
+		const rotateFigureHaveSides = Object.keys(rotateFigure).includes("sides");
+
+		// Обновляем координату Y для каждой стороны или фигуры
+		if (rotateFigureHaveSides && this.activeFigureData.activeFigureHaveSides) {
+			rotateFigure.sides.forEach((side) => {
+				side.yList -= yForSubtraction;
+			});
+		} else if (rotateFigureHaveSides && !this.activeFigureData.activeFigureHaveSides) {
+			rotateFigure.sides.forEach((side) => {
+				side.yList -= yForSubtraction;
+			});
+		} else {
+			rotateFigure.yList -= yForSubtraction;
+		}
+
+		// Назначаем новую фигуру
+		this.assignAnActiveFigure(rotateFigure);
+
+		// Обновляем массив с координатами активных квадратов
+		this.activeFigureData.coordinatesOfAllActiveSquares = [];
+		this.setCoordsSquaresFromActiveFigure();
+
+		let figureCantRotate = false;
+
+		// Проверка координат найденной фигуры на наличие квадратов других фигур
+		for (let i = 0; i < this.activeFigureData.coordinatesOfAllActiveSquares.length; i++) {
+			const coords = this.activeFigureData.coordinatesOfAllActiveSquares[i];
+			const $square = utils.getHTMLSquareByCoords(coords);
+
+			figureCantRotate = this._conditionForDefineFiguresRegardingActiveFigure($square);
+			if (figureCantRotate) break;
 		}
 
 		// Удаляем старые квадраты
 		coordinatesOfAllActiveSquares.forEach((coords) => {
 			utils.removeDefiniteSquare(coords, activeFigure.name);
 		});
-
-		// Отрисовка новой фигуры на том же уровне координат 
-		const maxYFromActiveSquares = utils.getMaxNumber(coordinatesOfAllActiveSquares.map(({ y }) => y));
-		const yForSubtraction = this.yMax - maxYFromActiveSquares;
-
-		// Назначаем новую фигуру
-		this.assignAnActiveFigure(rotateFigure);
-
-		const rotateFigureHaveSides = Object.keys(rotateFigure).includes("sides");
-
-		// Обновляем координату Y для каждой стороны или фигуры
-		if (rotateFigureHaveSides === true) {
-			rotateFigure.sides.forEach((side) => side.yList -= yForSubtraction);
-		} else {
-			rotateFigure.yList -= yForSubtraction;
-		}
-
-		// Обновляем массив с координатами активных квадратов
-		this.activeFigureData.coordinatesOfAllActiveSquares = [];
-		this.setCoordsSquaresFromActiveFigure();
 
 		// Добавляем квадрат с обновленными координатами (новый)
 		this.activeFigureData.coordinatesOfAllActiveSquares.forEach((coords) => {

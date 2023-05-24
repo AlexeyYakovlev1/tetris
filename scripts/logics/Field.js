@@ -6,6 +6,7 @@ class Field {
 	endOfField = [];
 	scores = 0;
 	yMax = 20;
+	xMax = 10;
 
 	constructor($field) {
 		this.$field = $field;
@@ -74,7 +75,7 @@ class Field {
 		for (let y = this.yMax; y >= 1; y--) {
 			const list = [];
 
-			for (let x = 1; x <= 10; x++) {
+			for (let x = 1; x <= this.xMax; x++) {
 				let coords = { x, y };
 
 				// Определяем позиции для конечных квадратов
